@@ -6,7 +6,7 @@ public class HttpRequestStepBuilderTest {
 
     @Test
     public void setsQueryParametersTest() {
-        ServiceNowStep step = new ServiceNowStep(new ServiceNowConfiguration("test"));
+        ServiceNowStep step = new ServiceNowStep(new ServiceNowConfiguration("test"), "table_name");
 
     }
 }
