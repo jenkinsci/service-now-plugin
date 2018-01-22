@@ -162,11 +162,6 @@ public class ServiceNowStep extends Step {
 
         private transient ServiceNowStep step;
 
-        @StepContextParameter
-        private transient Run<?, ?> run;
-        @StepContextParameter
-        private transient TaskListener listener;
-
         protected Execution(@Nonnull StepContext context, @Nonnull ServiceNowStep step) {
             super(context);
             this.step = step;
@@ -177,9 +172,9 @@ public class ServiceNowStep extends Step {
             HttpRequestStep.Execution httpRequestExecution =
                     new HttpRequestStep.Execution();
             setFieldValue(getExecutionField("listener"),
-                    httpRequestExecution, listener);
+                    httpRequestExecution, this.getContext().get(TaskListener.class));
             setFieldValue(getExecutionField("run"),
-                    httpRequestExecution, run);
+                    httpRequestExecution, this.getContext().get(Run.class));
             setFieldValue(getExecutionField("step"),
                     httpRequestExecution, HttpRequestStepBuilder.from(step));
             return HttpRequestBridge.call(httpRequestExecution);
