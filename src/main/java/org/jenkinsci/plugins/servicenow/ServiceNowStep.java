@@ -6,10 +6,16 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.util.FormValidation;
 import hudson.util.ReflectionUtils;
-import jenkins.plugins.http_request.HttpMode;
-import jenkins.plugins.http_request.HttpRequestBridge;
-import jenkins.plugins.http_request.HttpRequestExecution;
-import jenkins.plugins.http_request.HttpRequestStep;
+import jenkins.plugins.http_request.*;
+import jenkins.plugins.http_request.util.HttpClientUtil;
+import jenkins.plugins.http_request.util.RequestAction;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.tools.ant.taskdefs.condition.Http;
 import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousNonBlockingStepExecution;
 import org.jenkinsci.plugins.workflow.steps.Step;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
@@ -24,6 +30,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -158,7 +165,7 @@ public class ServiceNowStep extends Step {
         }
     }
 
-    public static final class Execution extends SynchronousNonBlockingStepExecution<Object> {
+    public static final class Execution extends SynchronousNonBlockingStepExecution<ResponseContentSupplier> {
 
         private transient ServiceNowStep step;
 
@@ -168,22 +175,21 @@ public class ServiceNowStep extends Step {
         }
 
         @Override
-        protected Object run() throws Exception {
-            HttpRequestStep.Execution httpRequestExecution =
-                    new HttpRequestStep.Execution();
-            setFieldValue(getExecutionField("listener"),
-                    httpRequestExecution, this.getContext().get(TaskListener.class));
-            setFieldValue(getExecutionField("run"),
-                    httpRequestExecution, this.getContext().get(Run.class));
-            setFieldValue(getExecutionField("step"),
-                    httpRequestExecution, HttpRequestStepBuilder.from(step));
-            return HttpRequestBridge.call(httpRequestExecution);
+        protected ResponseContentSupplier run() throws Exception {
+            HttpRequestStep requestStep = HttpRequestStepBuilder.from(step);
+            HttpClientBuilder clientBuilder = HttpClientBuilder.create().useSystemProperties();
+            HttpClientUtil clientUtil = new HttpClientUtil();
+            HttpRequestBase httpRequestBase = clientUtil.createRequestBase(new RequestAction(new URL(requestStep.getUrl()),
+                    requestStep.getHttpMode(), requestStep.getRequestBody(), null, requestStep.getCustomHeaders()));
+            HttpContext httpContext = new BasicHttpContext();
+            CloseableHttpClient client = clientBuilder.build();
+            HttpResponse response = clientUtil.execute(client, httpContext, httpRequestBase, getContext().get(TaskListener.class).getLogger());
+            return new ResponseContentSupplier(ResponseHandle.STRING, response);
         }
 
-        private Field getExecutionField(String name) {
-            Class execClass = HttpRequestStep.Execution.class;
+        private Field getExecutionField(Class clazz, String name) {
             try {
-                return execClass.getDeclaredField(name);
+                return clazz.getDeclaredField(name);
             } catch (NoSuchFieldException e) {
                 throw new ServiceNowPluginException("Failed to initialize http request", e);
             }

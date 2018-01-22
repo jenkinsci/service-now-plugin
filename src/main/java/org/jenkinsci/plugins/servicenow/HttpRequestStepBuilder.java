@@ -75,6 +75,6 @@ public class HttpRequestStepBuilder {
     }
 
     private static String getBaseUrl(String instance) {
-        return "https://" + instance + "service-now.com/now/table/";
+        return "https://" + instance + ".service-now.com/api/now/table/";
     }
 }
