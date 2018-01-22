@@ -188,7 +188,7 @@ public class ServiceNowStep extends Step {
         private Field getExecutionField(String name) {
             Class execClass = HttpRequestStep.Execution.class;
             try {
-                return execClass.getField(name);
+                return execClass.getDeclaredField(name);
             } catch (NoSuchFieldException e) {
                 throw new ServiceNowPluginException("Failed to initialize http request", e);
             }
