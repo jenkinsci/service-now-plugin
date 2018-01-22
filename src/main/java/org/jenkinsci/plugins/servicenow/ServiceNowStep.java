@@ -176,11 +176,11 @@ public class ServiceNowStep extends Step {
         protected Object run() throws Exception {
             HttpRequestStep.Execution httpRequestExecution =
                     new HttpRequestStep.Execution();
-            ReflectionUtils.setField(getExecutionField("listener"),
+            setFieldValue(getExecutionField("listener"),
                     httpRequestExecution, listener);
-            ReflectionUtils.setField(getExecutionField("run"),
+            setFieldValue(getExecutionField("run"),
                     httpRequestExecution, run);
-            ReflectionUtils.setField(getExecutionField("step"),
+            setFieldValue(getExecutionField("step"),
                     httpRequestExecution, HttpRequestStepBuilder.from(step));
             return HttpRequestBridge.call(httpRequestExecution);
         }
@@ -194,6 +194,10 @@ public class ServiceNowStep extends Step {
             }
         }
 
+        private void setFieldValue(Field field, Object target, Object value) {
+            field.setAccessible(true);
+            ReflectionUtils.setField(field, target, value);
+        }
         private static final long serialVersionUID = 1L;
 
     }
