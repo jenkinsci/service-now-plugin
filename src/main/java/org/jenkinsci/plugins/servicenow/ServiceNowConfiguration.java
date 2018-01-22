@@ -10,6 +10,7 @@ import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,16 +58,24 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
         this.credentialId = credentialId;
     }
 
-    public Map<String, String> getAuthorizationHeader() {
+    public String getAuthorizationHeader() {
         if (username == null) {
             return null;
         }
-        Map<String, String> header = new HashMap<>();
-        header.put("Authorization", "Basic " +
-                Base64.encodeBase64(
-                        String.join(":", username, password).getBytes()
-                ).toString());
-        return header;
+        try {
+            return "Basic " + new String(Base64.encodeBase64(getAuthBytes()), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new ServiceNowPluginException("Failed to encode username password to UTF-8");
+        }
+    }
+
+    private byte[] getAuthBytes() {
+        try {
+            return String.join(":", username, password).getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new ServiceNowPluginException("Failed to encode username password to UTF-8");
+        }
+
     }
 
     public void validate() {

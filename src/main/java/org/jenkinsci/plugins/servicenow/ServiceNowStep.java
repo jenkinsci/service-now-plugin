@@ -39,7 +39,7 @@ public class ServiceNowStep extends Step {
     private Integer limit;
     private Integer offset;
     private ServiceNowConfiguration configuration;
-    private Object body;
+    private String body;
     private String credentialId;
 
     @DataBoundConstructor
@@ -114,12 +114,12 @@ public class ServiceNowStep extends Step {
         return configuration;
     }
 
-    public Object getBody() {
+    public String getBody() {
         return body;
     }
 
     @DataBoundSetter
-    public void setBody(Object body) {
+    public void setBody(String body) {
         this.body = body;
     }
 
@@ -135,8 +135,7 @@ public class ServiceNowStep extends Step {
     @Override
     public StepExecution start(StepContext context) throws Exception {
         validate();
-        HttpRequestStep httpRequestStep = new HttpRequestStep("test");
-        return null;
+        return new Execution(context);
     }
 
     private void validate() {
