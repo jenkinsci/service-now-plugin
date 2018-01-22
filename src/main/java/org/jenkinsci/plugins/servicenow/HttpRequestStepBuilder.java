@@ -22,7 +22,7 @@ public class HttpRequestStepBuilder {
         HttpMode mode = serviceNowStep.getHttpMode();
         step.setHttpMode(mode);
         if (mode != HttpMode.GET) {
-            step.setRequestBody(serviceNowStep.getBody());
+            step.setRequestBody(serviceNowStep.getBody().toString());
         }
         if (serviceNowStep.getConfiguration().getCredentialId() != null) {
             step.setAuthentication(serviceNowStep.getConfiguration().getCredentialId());

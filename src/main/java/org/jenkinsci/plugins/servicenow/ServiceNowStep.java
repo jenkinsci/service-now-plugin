@@ -31,20 +31,21 @@ import java.util.Set;
 
 public class ServiceNowStep extends Step {
 
-    private HttpMode httpMode;
-    private String table;
+    private HttpMode httpMode = HttpMode.GET;
+    private final String table;
     private Map<String, String> query;
     private String sysId;
     private List<String> fields;
     private Integer limit;
     private Integer offset;
-    private ServiceNowConfiguration configuration;
-    private String body;
+    private final ServiceNowConfiguration configuration;
+    private Object body;
     private String credentialId;
 
     @DataBoundConstructor
-    public ServiceNowStep(ServiceNowConfiguration configuration) {
+    public ServiceNowStep(ServiceNowConfiguration configuration, String table) {
         this.configuration = configuration;
+        this.table = table;
     }
 
     public HttpMode getHttpMode() {
@@ -58,11 +59,6 @@ public class ServiceNowStep extends Step {
 
     public String getTable() {
         return table;
-    }
-
-    @DataBoundSetter
-    public void setTable(String table) {
-        this.table = table;
     }
 
     public Map<String, String> getQuery() {
@@ -114,12 +110,12 @@ public class ServiceNowStep extends Step {
         return configuration;
     }
 
-    public String getBody() {
+    public Object getBody() {
         return body;
     }
 
     @DataBoundSetter
-    public void setBody(String body) {
+    public void setBody(Object body) {
         this.body = body;
     }
 
@@ -194,7 +190,7 @@ public class ServiceNowStep extends Step {
             try {
                 return execClass.getField(name);
             } catch (NoSuchFieldException e) {
-                throw new ServiceNowPluginException("Failed to initialize http request");
+                throw new ServiceNowPluginException("Failed to initialize http request", e);
             }
         }
 
