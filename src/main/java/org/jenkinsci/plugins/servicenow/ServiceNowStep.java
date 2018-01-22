@@ -131,7 +131,7 @@ public class ServiceNowStep extends Step {
     @Override
     public StepExecution start(StepContext context) throws Exception {
         validate();
-        return new Execution(context);
+        return new Execution(context, this);
     }
 
     private void validate() {
@@ -160,7 +160,6 @@ public class ServiceNowStep extends Step {
 
     public static final class Execution extends SynchronousNonBlockingStepExecution<Object> {
 
-        @Inject
         private transient ServiceNowStep step;
 
         @StepContextParameter
@@ -168,8 +167,9 @@ public class ServiceNowStep extends Step {
         @StepContextParameter
         private transient TaskListener listener;
 
-        protected Execution(@Nonnull StepContext context) {
+        protected Execution(@Nonnull StepContext context, @Nonnull ServiceNowStep step) {
             super(context);
+            this.step = step;
         }
 
         @Override
