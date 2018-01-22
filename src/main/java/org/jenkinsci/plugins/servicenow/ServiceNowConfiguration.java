@@ -3,7 +3,10 @@ package org.jenkinsci.plugins.servicenow;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import hudson.model.Run;
+import jenkins.plugins.http_request.HttpRequestStep;
 import org.apache.commons.codec.binary.Base64;
+import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 

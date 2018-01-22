@@ -5,7 +5,9 @@ import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.util.FormValidation;
+import hudson.util.ReflectionUtils;
 import jenkins.plugins.http_request.HttpMode;
+import jenkins.plugins.http_request.HttpRequestBridge;
 import jenkins.plugins.http_request.HttpRequestExecution;
 import jenkins.plugins.http_request.HttpRequestStep;
 import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousNonBlockingStepExecution;
@@ -21,6 +23,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -176,7 +179,24 @@ public class ServiceNowStep extends Step {
 
         @Override
         protected Object run() throws Exception {
+            HttpRequestStep.Execution httpRequestExecution =
+                    new HttpRequestStep.Execution();
+            ReflectionUtils.setField(getExecutionField("listener"),
+                    httpRequestExecution, listener);
+            ReflectionUtils.setField(getExecutionField("run"),
+                    httpRequestExecution, run);
+            ReflectionUtils.setField(getExecutionField("step"),
+                    httpRequestExecution, HttpRequestStepBuilder.from(step));
+            return HttpRequestBridge.call(httpRequestExecution);
+        }
 
+        private Field getExecutionField(String name) {
+            Class execClass = HttpRequestStep.Execution.class;
+            try {
+                return execClass.getField(name);
+            } catch (NoSuchFieldException e) {
+                throw new ServiceNowPluginException("Failed to initialize http request");
+            }
         }
 
         private static final long serialVersionUID = 1L;
