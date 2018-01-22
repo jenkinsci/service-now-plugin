@@ -53,7 +53,12 @@ public class HttpRequestStepBuilder {
         if (step.getFields() != null) {
             queries.add("sysparm_fields=" + String.join(",", step.getFields()));
         }
-        step.getQuery().forEach((k, v) -> queries.add(String.join("=", k, encoded(v))));
+        if (step.getQuery() != null) {
+            step.getQuery()
+                    .forEach((k, v) ->
+                            queries.add(String.join("=", k, encoded(v)))
+                    );
+        }
         if (queries.size() != 0) {
             return url + "?" + String.join("&", queries);
         } else {
