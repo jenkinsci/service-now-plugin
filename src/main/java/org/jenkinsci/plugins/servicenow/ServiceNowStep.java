@@ -1,12 +1,20 @@
 package org.jenkinsci.plugins.servicenow;
 
+import com.cloudbees.plugins.credentials.Credentials;
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ReflectionUtils;
 import jenkins.plugins.http_request.*;
+import jenkins.plugins.http_request.auth.Authenticator;
+import jenkins.plugins.http_request.auth.CredentialBasicAuthentication;
 import jenkins.plugins.http_request.util.HttpClientUtil;
 import jenkins.plugins.http_request.util.RequestAction;
 import org.apache.http.HttpResponse;
@@ -29,8 +37,12 @@ import org.kohsuke.stapler.DataBoundSetter;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -182,9 +194,35 @@ public class ServiceNowStep extends Step {
             HttpRequestBase httpRequestBase = clientUtil.createRequestBase(new RequestAction(new URL(requestStep.getUrl()),
                     requestStep.getHttpMode(), requestStep.getRequestBody(), null, requestStep.getCustomHeaders()));
             HttpContext httpContext = new BasicHttpContext();
-            CloseableHttpClient client = clientBuilder.build();
+            CloseableHttpClient client = auth(requestStep, clientBuilder, httpContext, httpRequestBase, getContext().get(TaskListener.class).getLogger());
             HttpResponse response = clientUtil.execute(client, httpContext, httpRequestBase, getContext().get(TaskListener.class).getLogger());
             return new ResponseContentSupplier(ResponseHandle.STRING, response);
+        }
+
+        private CloseableHttpClient auth(HttpRequestStep requestStep, HttpClientBuilder clientBuilder,
+                                         HttpContext httpContext, HttpRequestBase httpRequestBase,
+                                         PrintStream logger) throws IOException, InterruptedException {
+            if(requestStep.getAuthentication() != null) {
+                Authenticator auth = findCredentials(requestStep);
+                if(auth != null) {
+                    return auth.authenticate(clientBuilder, httpContext, httpRequestBase, logger);
+                }
+            }
+            return clientBuilder.build();
+        }
+
+        private Authenticator findCredentials(HttpRequestStep requestStep) throws IOException, InterruptedException {
+            StandardUsernamePasswordCredentials credential = CredentialsMatchers.firstOrNull(
+                    CredentialsProvider.lookupCredentials(
+                            StandardUsernamePasswordCredentials.class,
+                            getContext().get(Run.class).getParent(), ACL.SYSTEM,
+                            URIRequirementBuilder.fromUri(requestStep.getUrl()).build()),
+                    CredentialsMatchers.withId(requestStep.getAuthentication()));
+            if (credential != null) {
+                return new CredentialBasicAuthentication(credential);
+            } else {
+                return null;
+            }
         }
 
         private Field getExecutionField(Class clazz, String name) {
