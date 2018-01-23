@@ -51,7 +51,6 @@ public class ServiceNowStep extends Step {
     private Integer offset;
     private final ServiceNowConfiguration configuration;
     private Object body;
-    private String credentialId;
 
     @DataBoundConstructor
     public ServiceNowStep(ServiceNowConfiguration configuration, String table) {
@@ -128,15 +127,6 @@ public class ServiceNowStep extends Step {
     @DataBoundSetter
     public void setBody(Object body) {
         this.body = body;
-    }
-
-    public String getCredentialId() {
-        return credentialId;
-    }
-
-    @DataBoundSetter
-    public void setCredentialId(String credentialId) {
-        this.credentialId = credentialId;
     }
 
     @Override
