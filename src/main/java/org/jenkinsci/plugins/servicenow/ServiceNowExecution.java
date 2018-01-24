@@ -13,7 +13,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
@@ -21,6 +20,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
@@ -35,11 +35,8 @@ import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowItem;
 import org.jenkinsci.plugins.servicenow.util.ServiceNowCTasks;
 import org.jenkinsci.plugins.servicenow.workflow.AbstractServiceNowStep;
-import org.jenkinsci.plugins.servicenow.workflow.CreateChangeStep;
-import org.jenkinsci.plugins.servicenow.workflow.GetCTaskStep;
-import org.jenkinsci.plugins.servicenow.workflow.GetChangeStateStep;
-import org.jenkinsci.plugins.servicenow.workflow.UpdateChangeItemStep;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -49,6 +46,7 @@ public class ServiceNowExecution {
 
     private static final String PRODUCER_URI = "api/sn_sc/servicecatalog/items";
     private static final String TABLE_API = "api/now/table";
+    private static final String ATTACHMENT_API = "api/now/attachment/file";
 
     private final Credentials credentials;
     private final ServiceNowConfiguration serviceNowConfiguration;
@@ -60,34 +58,48 @@ public class ServiceNowExecution {
     }
 
     private ServiceNowExecution(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem, String credentialsId, VaultConfiguration vaultConfiguration, Item project) {
-        this.credentials = findCredentials(getPatchUrl(serviceNowConfiguration, serviceNowItem), credentialsId, vaultConfiguration, project);
         this.serviceNowConfiguration = serviceNowConfiguration;
         this.vaultConfiguration = vaultConfiguration;
         this.serviceNowItem = serviceNowItem;
+        this.credentials = findCredentials(getPatchUrl(), credentialsId, vaultConfiguration, project);
     }
 
     public CloseableHttpResponse createChange() throws IOException {
-        HttpPost requestBase = new HttpPost(getProducerRequestUrl(serviceNowConfiguration));
-        requestBase.setHeaders(getHeaders());
+        HttpPost requestBase = new HttpPost(getProducerRequestUrl());
+        requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
         return sendRequest(requestBase);
     }
 
     public CloseableHttpResponse updateChange() throws IOException {
-        HttpPatch requestBase = new HttpPatch(getPatchUrl(serviceNowConfiguration, serviceNowItem));
-        requestBase.setHeaders(getHeaders());
+        HttpPatch requestBase = new HttpPatch(getPatchUrl());
+        requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
         requestBase.setEntity(buildEntity(serviceNowItem.getBody()));
         return sendRequest(requestBase);
     }
 
     public CloseableHttpResponse getChangeState() throws IOException {
-        HttpGet requestBase = new HttpGet(getCurrentStateUrl(serviceNowConfiguration, serviceNowItem));
-        requestBase.setHeaders(getHeaders());
+        HttpGet requestBase = new HttpGet(getCurrentStateUrl());
+        requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
         return sendRequest(requestBase);
     }
 
     public CloseableHttpResponse getCTask() throws IOException {
-        HttpGet requestBase = new HttpGet(getCTasksUrl(serviceNowConfiguration, serviceNowItem));
-        requestBase.setHeaders(getHeaders());
+        HttpGet requestBase = new HttpGet(getCTasksUrl());
+        requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
+        return sendRequest(requestBase);
+    }
+
+    public CloseableHttpResponse attachFile() throws IOException {
+        HttpPost requestBase = new HttpPost(getAttachmentUrl());
+        requestBase.setHeaders(new Header[]{getContentTypeHeader("text/plain")});
+        requestBase.setEntity(buildEntity(serviceNowItem.getBody()));
+        return sendRequest(requestBase);
+    }
+
+    public CloseableHttpResponse attachZip() throws IOException {
+        HttpPost requestBase = new HttpPost(getAttachmentUrl());
+        requestBase.setHeaders(new Header[]{getContentTypeHeader("application/zip")});
+        requestBase.setEntity(buildFileEntity(serviceNowItem.getFilename()));
         return sendRequest(requestBase);
     }
 
@@ -157,23 +169,31 @@ public class ServiceNowExecution {
         return new StringEntity(body, ContentType.create("application/json"));
     }
 
-    private Header[] getHeaders() {
-        return new Header[]{new BasicHeader("Content-Type", "application/json")};
+    private FileEntity buildFileEntity(String filename) {
+        return new FileEntity(new File(filename), ContentType.create("application/zip"));
     }
 
-    private String getCTasksUrl(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem) throws UnsupportedEncodingException {
+    private Header getContentTypeHeader(String contentType) {
+        return new BasicHeader("Content-Type", contentType);
+    }
+
+    private String getAttachmentUrl() {
+        return getBaseUrl(serviceNowConfiguration.getInstance())+"/"+ATTACHMENT_API+"?file_name="+serviceNowItem.getFilename()+"&table_name="+serviceNowItem.getTable()+"&table_sys_id="+serviceNowItem.getSysId();
+    }
+
+    private String getCTasksUrl() throws UnsupportedEncodingException {
         return getBaseUrl(serviceNowConfiguration.getInstance())+"/"+TABLE_API+"/change_task?change_request="+ serviceNowItem.getSysId()+"&short_description="+ URLEncoder.encode(ServiceNowCTasks.valueOf(serviceNowItem.getcTask()).getDescription(), "UTF-8");
     }
 
-    private String getCurrentStateUrl(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem) {
+    private String getCurrentStateUrl() {
         return getBaseUrl(serviceNowConfiguration.getInstance())+"/"+TABLE_API+"/change_request/"+ serviceNowItem.getSysId()+"?sysparm_fields=state";
     }
 
-    private String getPatchUrl(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem) {
+    private String getPatchUrl() {
         return getBaseUrl(serviceNowConfiguration.getInstance())+"/"+TABLE_API+"/"+ serviceNowItem.getTable()+"/"+ serviceNowItem.getSysId();
     }
 
-    private String getProducerRequestUrl(ServiceNowConfiguration serviceNowConfiguration) {
+    private String getProducerRequestUrl() {
         return getBaseUrl(serviceNowConfiguration.getInstance())+"/"+PRODUCER_URI+"/"+serviceNowConfiguration.getProducerId()+"/submit_producer";
     }
 
