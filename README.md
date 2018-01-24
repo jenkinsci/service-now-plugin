@@ -111,3 +111,36 @@ Get the current state of a service-now change
 def response = serviceNow_UpdateChangeItem serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'adg98y29thukwfd97ihu23'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
 echo response //NEW
 ```
+
+## `serviceNow_getCTask`
+
+### Required Parameters
+
+`serviceNowConfiguration`
+* `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
+
+`credentialsId` - Jenkins credentials for Username with Password credentials (or Vault Role Credentials if including vaultConfiguration below)
+
+`serviceNowItem`
+* `ctask` - String representation of CTask (see [ServiceNowCTasks](src/main/java/org/jenkinsci/plugins/servicenow/util/ServiceNowCTasks.java))
+
+### Optional Parameters
+
+`vaultConfiguration`
+* `url` - Vault url
+* `path` - Vault path to get authentication values
+
+### Response
+
+`result`
+* `sys_id`
+* `number`
+* `short_description`
+
+### Example
+Get the current state of a service-now change
+```groovy
+def response = serviceNow_getCTask serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [ctask: 'UAT_TESTING'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+def ctaskSysId = createResponse.result.sys_id
+def ctaskNumber = createResponse.result.number
+```

@@ -24,32 +24,11 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
-public class UpdateChangeItemStep extends Step {
-
-    private final ServiceNowConfiguration serviceNowConfiguration;
-    private final String credentialsId;
-    private final ServiceNowItem serviceNowItem;
-
-    @DataBoundSetter
-    public VaultConfiguration vaultConfiguration;
+public class UpdateChangeItemStep extends AbstractServiceNowStep {
 
     @DataBoundConstructor
     public UpdateChangeItemStep(ServiceNowConfiguration serviceNowConfiguration, String credentialsId, ServiceNowItem serviceNowItem) {
-        this.serviceNowConfiguration = serviceNowConfiguration;
-        this.credentialsId = credentialsId;
-        this.serviceNowItem = serviceNowItem;
-    }
-
-    public ServiceNowConfiguration getServiceNowConfiguration() {
-        return serviceNowConfiguration;
-    }
-
-    public String getCredentialsId() {
-        return credentialsId;
-    }
-
-    public ServiceNowItem getServiceNowItem() {
-        return serviceNowItem;
+        super(serviceNowConfiguration, credentialsId, serviceNowItem);
     }
 
     @Override
@@ -82,13 +61,13 @@ public class UpdateChangeItemStep extends Step {
 
         @Override
         protected ResponseContentSupplier run() throws Exception {
-            ServiceNowExecution exec = ServiceNowExecution.from(step, this);
+            ServiceNowExecution exec = ServiceNowExecution.from(step, getProject());
 
             CloseableHttpResponse response = exec.updateChange();
             return new ResponseContentSupplier(ResponseHandle.STRING, response);
         }
 
-        public Item getProject() throws IOException, InterruptedException {
+        Item getProject() throws IOException, InterruptedException {
             return getContext().get(Run.class).getParent();
         }
 

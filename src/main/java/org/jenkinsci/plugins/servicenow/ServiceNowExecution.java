@@ -34,7 +34,9 @@ import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
 import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowItem;
 import org.jenkinsci.plugins.servicenow.util.ServiceNowCTasks;
+import org.jenkinsci.plugins.servicenow.workflow.AbstractServiceNowStep;
 import org.jenkinsci.plugins.servicenow.workflow.CreateChangeStep;
+import org.jenkinsci.plugins.servicenow.workflow.GetCTaskStep;
 import org.jenkinsci.plugins.servicenow.workflow.GetChangeStateStep;
 import org.jenkinsci.plugins.servicenow.workflow.UpdateChangeItemStep;
 
@@ -53,26 +55,8 @@ public class ServiceNowExecution {
     private final VaultConfiguration vaultConfiguration;
     private final ServiceNowItem serviceNowItem;
 
-    public static ServiceNowExecution from(CreateChangeStep step, CreateChangeStep.Execution execution) throws IOException, InterruptedException {
-        Item project = execution.getProject();
-        return new ServiceNowExecution(step.getServiceNowConfiguration(), step.getCredentialsId(), step.vaultConfiguration, project);
-    }
-
-    public static ServiceNowExecution from(UpdateChangeItemStep step, UpdateChangeItemStep.Execution execution) throws IOException, InterruptedException {
-        Item project = execution.getProject();
+    public static ServiceNowExecution from(AbstractServiceNowStep step, Item project) {
         return new ServiceNowExecution(step.getServiceNowConfiguration(), step.getServiceNowItem(), step.getCredentialsId(), step.vaultConfiguration, project);
-    }
-
-    public static ServiceNowExecution from(GetChangeStateStep step, GetChangeStateStep.Execution execution) throws IOException, InterruptedException {
-        Item project = execution.getProject();
-        return new ServiceNowExecution(step.getServiceNowConfiguration(), step.getServiceNowItem(), step.getCredentialsId(), step.vaultConfiguration, project);
-    }
-
-    private ServiceNowExecution(ServiceNowConfiguration serviceNowConfiguration, String credentialsId, VaultConfiguration vaultConfiguration, Item project) {
-        this.credentials = findCredentials(getProducerRequestUrl(serviceNowConfiguration), credentialsId, vaultConfiguration, project);
-        this.serviceNowConfiguration = serviceNowConfiguration;
-        this.vaultConfiguration = vaultConfiguration;
-        this.serviceNowItem = null;
     }
 
     private ServiceNowExecution(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem, String credentialsId, VaultConfiguration vaultConfiguration, Item project) {
@@ -97,6 +81,12 @@ public class ServiceNowExecution {
 
     public CloseableHttpResponse getChangeState() throws IOException {
         HttpGet requestBase = new HttpGet(getCurrentStateUrl(serviceNowConfiguration, serviceNowItem));
+        requestBase.setHeaders(getHeaders());
+        return sendRequest(requestBase);
+    }
+
+    public CloseableHttpResponse getCTask() throws IOException {
+        HttpGet requestBase = new HttpGet(getCTasksUrl(serviceNowConfiguration, serviceNowItem));
         requestBase.setHeaders(getHeaders());
         return sendRequest(requestBase);
     }

@@ -15,7 +15,6 @@ import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
 import org.jenkinsci.plugins.servicenow.util.ServiceNowStates;
 import org.jenkinsci.plugins.workflow.steps.Step;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
-import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
@@ -27,10 +26,10 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
-public class GetChangeStateStep extends AbstractServiceNowStep {
+public class GetCTaskStep extends AbstractServiceNowStep {
 
     @DataBoundConstructor
-    public GetChangeStateStep(ServiceNowConfiguration serviceNowConfiguration, String credentialsId, ServiceNowItem serviceNowItem) {
+    public GetCTaskStep(ServiceNowConfiguration serviceNowConfiguration, String credentialsId, ServiceNowItem serviceNowItem) {
         super(serviceNowConfiguration, credentialsId, serviceNowItem);
     }
 
@@ -44,7 +43,7 @@ public class GetChangeStateStep extends AbstractServiceNowStep {
 
         @Override
         public String getFunctionName() {
-            return "serviceNow_getChangeState";
+            return "serviceNow_getCTask";
         }
 
         @Override
@@ -53,24 +52,21 @@ public class GetChangeStateStep extends AbstractServiceNowStep {
         }
     }
 
-    public static final class Execution extends SynchronousNonBlockingStepExecution<String> {
+    public static final class Execution extends SynchronousNonBlockingStepExecution<ResponseContentSupplier> {
 
-        private transient GetChangeStateStep step;
+        private transient GetCTaskStep step;
 
-        Execution(@Nonnull StepContext context, @Nonnull GetChangeStateStep step) {
+        Execution(@Nonnull StepContext context, @Nonnull GetCTaskStep step) {
             super(context);
             this.step = step;
         }
 
         @Override
-        protected String run() throws Exception {
+        protected ResponseContentSupplier run() throws Exception {
             ServiceNowExecution exec = ServiceNowExecution.from(step, getProject());
 
-            CloseableHttpResponse response = exec.getChangeState();
-            ResponseContentSupplier responseContent = new ResponseContentSupplier(ResponseHandle.STRING, response);
-            ObjectMapper mapper = new ObjectMapper();
-            StateResult stateResult = mapper.readValue(responseContent.getContent(), StateResult.class);
-            return ServiceNowStates.getState(stateResult.getState()).name();
+            CloseableHttpResponse response = exec.getCTask();
+            return new ResponseContentSupplier(ResponseHandle.STRING, response);
         }
 
         Item getProject() throws IOException, InterruptedException {
