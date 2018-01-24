@@ -28,7 +28,7 @@ import com.google.common.io.CharStreams;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
 
-class ResponseContentSupplier implements Serializable, AutoCloseable {
+public class ResponseContentSupplier implements Serializable, AutoCloseable {
 
     private static final long serialVersionUID = 1L;
 
