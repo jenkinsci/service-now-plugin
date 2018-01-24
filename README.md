@@ -133,15 +133,15 @@ echo response //NEW
 
 ### Response
 
-`result`
+`result` - an array of results
 * `sys_id`
 * `number`
 * `short_description`
 
 ### Example
-Get the current state of a service-now change
+Get ctask of a service-now change
 ```groovy
 def response = serviceNow_getCTask serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', ctask: 'UAT_TESTING'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
-def ctaskSysId = createResponse.result.sys_id
-def ctaskNumber = createResponse.result.number
+def ctaskSysId = createResponse.result[0].sys_id
+def ctaskNumber = createResponse.result[0].number
 ```
