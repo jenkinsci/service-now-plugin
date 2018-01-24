@@ -10,6 +10,7 @@ import org.jenkinsci.plugins.servicenow.ResponseContentSupplier;
 import org.jenkinsci.plugins.servicenow.ServiceNowExecution;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowItem;
+import org.jenkinsci.plugins.servicenow.model.StateResult;
 import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
 import org.jenkinsci.plugins.servicenow.util.ServiceNowStates;
 import org.jenkinsci.plugins.workflow.steps.Step;
@@ -86,11 +87,11 @@ public class GetChangeStateStep extends Step {
         protected String run() throws Exception {
             ServiceNowExecution exec = ServiceNowExecution.from(step, this);
 
-            CloseableHttpResponse response = exec.updateChange();
+            CloseableHttpResponse response = exec.getChangeState();
             ResponseContentSupplier responseContent = new ResponseContentSupplier(ResponseHandle.STRING, response);
             ObjectMapper mapper = new ObjectMapper();
-            int stateInt = mapper.readValue(responseContent.getContent(), Integer.class);
-            return ServiceNowStates.getState(stateInt).name();
+            StateResult stateResult = mapper.readValue(responseContent.getContent(), StateResult.class);
+            return ServiceNowStates.getState(stateResult.getState()).name();
         }
 
         public Item getProject() throws IOException, InterruptedException {
