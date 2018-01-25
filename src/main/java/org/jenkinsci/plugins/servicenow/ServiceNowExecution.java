@@ -20,7 +20,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.FileEntity;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
@@ -31,13 +31,13 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
-import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowItem;
+import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
 import org.jenkinsci.plugins.servicenow.util.ServiceNowCTasks;
 import org.jenkinsci.plugins.servicenow.workflow.AbstractServiceNowStep;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
@@ -96,10 +96,10 @@ public class ServiceNowExecution {
         return sendRequest(requestBase);
     }
 
-    public CloseableHttpResponse attachZip() throws IOException {
+    public CloseableHttpResponse attachZip(InputStream zipStream) throws IOException {
         HttpPost requestBase = new HttpPost(getAttachmentUrl());
         requestBase.setHeaders(new Header[]{getContentTypeHeader("application/zip")});
-        requestBase.setEntity(buildFileEntity(serviceNowItem.getFilename()));
+        requestBase.setEntity(buildZipEntity(zipStream));
         return sendRequest(requestBase);
     }
 
@@ -169,8 +169,8 @@ public class ServiceNowExecution {
         return new StringEntity(body, ContentType.create("application/json"));
     }
 
-    private FileEntity buildFileEntity(String filename) {
-        return new FileEntity(new File(filename), ContentType.create("application/zip"));
+    private InputStreamEntity buildZipEntity(InputStream zipStream) {
+        return new InputStreamEntity(zipStream, ContentType.create("application/zip"));
     }
 
     private Header getContentTypeHeader(String contentType) {
