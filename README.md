@@ -145,3 +145,65 @@ def response = serviceNow_getCTask serviceNowConfiguration: [instance: 'exampled
 def ctaskSysId = createResponse.result[0].sys_id
 def ctaskNumber = createResponse.result[0].number
 ```
+
+## `serviceNow_attachFile`
+
+### Required Parameters
+
+`serviceNowConfiguration`
+* `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
+
+`credentialsId` - Jenkins credentials for Username with Password credentials (or Vault Role Credentials if including vaultConfiguration below)
+
+`serviceNowItem`
+* `sysId` - SysId to attach to (can be Change Request or CTask)
+* `body` - String body of file to attach
+
+### Optional Parameters
+
+`vaultConfiguration`
+* `url` - Vault url
+* `path` - Vault path to get authentication values
+
+### Response
+
+`result`
+
+### Example
+Attach file to item in service-now
+```groovy
+def myFile = readFile file: 'my-test-file.txt'
+serviceNow_attachFile serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', body: myFile], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+```
+
+## `serviceNow_attachZip`
+
+Attach a zip file (from the current directory) to a service-now item
+
+### Required Parameters
+
+`serviceNowConfiguration`
+* `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
+
+`credentialsId` - Jenkins credentials for Username with Password credentials (or Vault Role Credentials if including vaultConfiguration below)
+
+`serviceNowItem`
+* `sysId` - SysId to attach to (can be Change Request or CTask)
+* `filename` - Filename of the zip file to attach
+
+### Optional Parameters
+
+`vaultConfiguration`
+* `url` - Vault url
+* `path` - Vault path to get authentication values
+
+### Response
+
+`result`
+
+### Example
+Attach zip to item in service-now
+```groovy
+zip zipFile: 'my-zip-file.zip', glob: '*.txt'
+serviceNow_attachZip serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', filename: 'my-zip-file.zip'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+```
