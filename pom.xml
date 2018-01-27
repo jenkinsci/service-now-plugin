@@ -168,16 +168,9 @@
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
-	<distributionManagement>
-		<repository>
-			<id>organisation-internal</id>
-			<name>internal releases</name>
-			<url>${healthpartners.releases.url}</url>
-		</repository>
-		<snapshotRepository>
-			<id>organisation-internal.snapshots</id>
-			<name>internal snapshots</name>
-			<url>${healthpartners.snapshots.url}</url>
-		</snapshotRepository>
-	</distributionManagement>
+    <scm>
+        <connection>scm:git:ssh://github.com/jmcshane/service-now-jenkins-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/jmcshane/service-now-jenkins-plugin.git</developerConnection>
+        <url>https://github.com/jmcshane/service-now-jenkins-plugin</url>
+    </scm>
 </project>
