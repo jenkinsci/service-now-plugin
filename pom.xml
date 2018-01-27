@@ -179,5 +179,10 @@
             <name>James McShane</name>
             <email>jmcshan1@gmail.com</email>
         </developer>
+        <developer>
+            <id>pdkreid</id>
+            <name>Peter Kreidermacher</name>
+            <email>pdkreid@me.com</email>
+        </developer>
     </developers>
 </project>
