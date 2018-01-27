@@ -6,7 +6,7 @@
         <artifactId>plugin</artifactId>
         <version>2.33</version>
     </parent>
-    <artifactId>service-now-plugin</artifactId>
+    <artifactId>service-now</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
