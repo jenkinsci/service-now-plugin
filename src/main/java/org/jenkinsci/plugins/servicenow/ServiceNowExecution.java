@@ -33,6 +33,7 @@ import org.apache.http.protocol.HttpContext;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowItem;
 import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
+import org.jenkinsci.plugins.servicenow.util.CredentialsUtil;
 import org.jenkinsci.plugins.servicenow.util.ServiceNowCTasks;
 import org.jenkinsci.plugins.servicenow.workflow.AbstractServiceNowStep;
 
@@ -43,10 +44,6 @@ import java.net.URLEncoder;
 import java.util.Map;
 
 public class ServiceNowExecution {
-
-    private static final String PRODUCER_URI = "api/sn_sc/servicecatalog/items";
-    private static final String TABLE_API = "api/now/table";
-    private static final String ATTACHMENT_API = "api/now/attachment/file";
 
     private final Credentials credentials;
     private final ServiceNowConfiguration serviceNowConfiguration;
@@ -61,43 +58,43 @@ public class ServiceNowExecution {
         this.serviceNowConfiguration = serviceNowConfiguration;
         this.vaultConfiguration = vaultConfiguration;
         this.serviceNowItem = serviceNowItem;
-        this.credentials = findCredentials(getPatchUrl(), credentialsId, vaultConfiguration, project);
+        this.credentials = CredentialsUtil.findCredentials(serviceNowConfiguration.getPatchUrl(serviceNowItem), credentialsId, vaultConfiguration, project);
     }
 
     public CloseableHttpResponse createChange() throws IOException {
-        HttpPost requestBase = new HttpPost(getProducerRequestUrl());
+        HttpPost requestBase = new HttpPost(serviceNowConfiguration.getProducerRequestUrl());
         requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
         return sendRequest(requestBase);
     }
 
     public CloseableHttpResponse updateChange() throws IOException {
-        HttpPatch requestBase = new HttpPatch(getPatchUrl());
+        HttpPatch requestBase = new HttpPatch(serviceNowConfiguration.getPatchUrl(serviceNowItem));
         requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
         requestBase.setEntity(buildEntity(serviceNowItem.getBody()));
         return sendRequest(requestBase);
     }
 
     public CloseableHttpResponse getChangeState() throws IOException {
-        HttpGet requestBase = new HttpGet(getCurrentStateUrl());
+        HttpGet requestBase = new HttpGet(serviceNowConfiguration.getCurrentStateUrl(serviceNowItem.getSysId()));
         requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
         return sendRequest(requestBase);
     }
 
     public CloseableHttpResponse getCTask() throws IOException {
-        HttpGet requestBase = new HttpGet(getCTasksUrl());
+        HttpGet requestBase = new HttpGet(serviceNowConfiguration.getCTasksUrl(serviceNowItem));
         requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
         return sendRequest(requestBase);
     }
 
     public CloseableHttpResponse attachFile() throws IOException {
-        HttpPost requestBase = new HttpPost(getAttachmentUrl());
+        HttpPost requestBase = new HttpPost(serviceNowConfiguration.getAttachmentUrl(serviceNowItem));
         requestBase.setHeaders(new Header[]{getContentTypeHeader("text/plain")});
         requestBase.setEntity(buildEntity(serviceNowItem.getBody()));
         return sendRequest(requestBase);
     }
 
     public CloseableHttpResponse attachZip(InputStream zipStream) throws IOException {
-        HttpPost requestBase = new HttpPost(getAttachmentUrl());
+        HttpPost requestBase = new HttpPost(serviceNowConfiguration.getAttachmentUrl(serviceNowItem));
         requestBase.setHeaders(new Header[]{getContentTypeHeader("application/zip")});
         requestBase.setEntity(buildZipEntity(zipStream));
         return sendRequest(requestBase);
@@ -117,33 +114,11 @@ public class ServiceNowExecution {
         return clientBuilder.build();
     }
 
-    private static Credentials findCredentials(String url, String credentialId, VaultConfiguration vaultConfiguration, Item project) {
-        Credentials credentials = null;
-        if(vaultConfiguration != null) {
-            credentials = CredentialsMatchers.firstOrNull(
-                    com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
-                            VaultAppRoleCredential.class,
-                            project.getParent(), ACL.SYSTEM,
-                            URIRequirementBuilder.fromUri(url).build()),
-                    CredentialsMatchers.withId(credentialId));
-        }
-        if(credentials == null) {
-            credentials = CredentialsMatchers.firstOrNull(
-                    com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
-                            StandardUsernamePasswordCredentials.class,
-                            project.getParent(), ACL.SYSTEM,
-                            URIRequirementBuilder.fromUri(url).build()),
-                    CredentialsMatchers.withId(credentialId));
-        }
-
-        return credentials;
-    }
-
     private CloseableHttpClient authenticate(HttpClientBuilder clientBuilder, HttpRequestBase requestBase, HttpContext httpContext) {
         CredentialsProvider provider = new BasicCredentialsProvider();
         provider.setCredentials(
                 new AuthScope(requestBase.getURI().getHost(), requestBase.getURI().getPort()),
-                readCredentials());
+                CredentialsUtil.readCredentials(credentials, vaultConfiguration));
         clientBuilder.setDefaultCredentialsProvider(provider);
 
         AuthCache authCache = new BasicAuthCache();
@@ -151,18 +126,6 @@ public class ServiceNowExecution {
         httpContext.setAttribute(HttpClientContext.AUTH_CACHE, authCache);
 
         return clientBuilder.build();
-    }
-
-    private org.apache.http.auth.Credentials readCredentials() {
-        org.apache.http.auth.Credentials creds = null;
-        if(credentials instanceof StandardUsernamePasswordCredentials) {
-            creds = new org.apache.http.auth.UsernamePasswordCredentials(((StandardUsernamePasswordCredentials)credentials).getUsername(), ((StandardUsernamePasswordCredentials)credentials).getPassword().getPlainText());
-        }
-        if(credentials instanceof VaultAppRoleCredential) {
-            Map<String, String> vaultData = VaultService.readVaultData(vaultConfiguration, (VaultCredential) credentials);
-            creds = new org.apache.http.auth.UsernamePasswordCredentials(vaultData.get("username"), vaultData.get("password"));
-        }
-        return creds;
     }
 
     private StringEntity buildEntity(String body) {
@@ -176,29 +139,4 @@ public class ServiceNowExecution {
     private Header getContentTypeHeader(String contentType) {
         return new BasicHeader("Content-Type", contentType);
     }
-
-    private String getAttachmentUrl() {
-        return getBaseUrl(serviceNowConfiguration.getInstance())+"/"+ATTACHMENT_API+"?file_name="+serviceNowItem.getFilename()+"&table_name="+serviceNowItem.getTable()+"&table_sys_id="+serviceNowItem.getSysId();
-    }
-
-    private String getCTasksUrl() throws UnsupportedEncodingException {
-        return getBaseUrl(serviceNowConfiguration.getInstance())+"/"+TABLE_API+"/change_task?change_request="+ serviceNowItem.getSysId()+"&short_description="+ URLEncoder.encode(ServiceNowCTasks.valueOf(serviceNowItem.getcTask()).getDescription(), "UTF-8");
-    }
-
-    private String getCurrentStateUrl() {
-        return getBaseUrl(serviceNowConfiguration.getInstance())+"/"+TABLE_API+"/change_request/"+ serviceNowItem.getSysId()+"?sysparm_fields=state";
-    }
-
-    private String getPatchUrl() {
-        return getBaseUrl(serviceNowConfiguration.getInstance())+"/"+TABLE_API+"/"+ serviceNowItem.getTable()+"/"+ serviceNowItem.getSysId();
-    }
-
-    private String getProducerRequestUrl() {
-        return getBaseUrl(serviceNowConfiguration.getInstance())+"/"+PRODUCER_URI+"/"+serviceNowConfiguration.getProducerId()+"/submit_producer";
-    }
-
-    private String getBaseUrl(String instance) {
-        return "https://" + instance + ".service-now.com";
-    }
-
 }
