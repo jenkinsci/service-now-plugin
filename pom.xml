@@ -173,4 +173,11 @@
         <developerConnection>scm:git:ssh://git@github.com/jmcshane/service-now-jenkins-plugin.git</developerConnection>
         <url>https://github.com/jmcshane/service-now-jenkins-plugin</url>
     </scm>
+    <developers>
+        <developer>
+            <id>jmcshane</id>
+            <name>James McShane</name>
+            <email>jmcshan1@gmail.com</email>
+        </developer>
+    </developers>
 </project>
