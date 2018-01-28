@@ -44,11 +44,11 @@ public class AttachZipStep extends AbstractServiceNowStep {
 
         @Override
         public Set<? extends Class<?>> getRequiredContext() {
-            return Collections.emptySet();
+            return Collections.singleton(Run.class);
         }
     }
 
-    public static final class Execution extends SynchronousNonBlockingStepExecution<ResponseContentSupplier> {
+    public static final class Execution extends AbstractItemProviderExecution<ResponseContentSupplier> {
 
         private transient AttachZipStep step;
 
@@ -65,10 +65,6 @@ public class AttachZipStep extends AbstractServiceNowStep {
                 CloseableHttpResponse response = exec.attachZip(zipStream);
                 return new ResponseContentSupplier(ResponseHandle.STRING, response);
             }
-        }
-
-        Item getProject() throws IOException, InterruptedException {
-            return getContext().get(Run.class).getParent();
         }
 
         private static final long serialVersionUID = 1L;

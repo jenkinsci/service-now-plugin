@@ -49,11 +49,11 @@ public class GetChangeStateStep extends AbstractServiceNowStep {
 
         @Override
         public Set<? extends Class<?>> getRequiredContext() {
-            return Collections.emptySet();
+            return Collections.singleton(Run.class);
         }
     }
 
-    public static final class Execution extends SynchronousNonBlockingStepExecution<String> {
+    public static final class Execution extends AbstractItemProviderExecution<String> {
 
         private transient GetChangeStateStep step;
 
@@ -71,10 +71,6 @@ public class GetChangeStateStep extends AbstractServiceNowStep {
             ObjectMapper mapper = new ObjectMapper();
             StateResult stateResult = mapper.readValue(responseContent.getContent(), StateResult.class);
             return ServiceNowStates.getState(stateResult.getState()).name();
-        }
-
-        Item getProject() throws IOException, InterruptedException {
-            return getContext().get(Run.class).getParent();
         }
 
         private static final long serialVersionUID = 1L;
