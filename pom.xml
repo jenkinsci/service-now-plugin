@@ -134,6 +134,12 @@
             <version>0.5.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.paweladamski</groupId>
+            <artifactId>HttpClientMock</artifactId>
+            <version>1.0.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

@@ -49,6 +49,7 @@ public class ServiceNowExecution {
     private final ServiceNowConfiguration serviceNowConfiguration;
     private final VaultConfiguration vaultConfiguration;
     private final ServiceNowItem serviceNowItem;
+    private HttpClientBuilder clientBuilder;
 
     public static ServiceNowExecution from(AbstractServiceNowStep step, Item project) {
         return new ServiceNowExecution(step.getServiceNowConfiguration(), step.getServiceNowItem(), step.getCredentialsId(), step.vaultConfiguration, project);
@@ -59,6 +60,7 @@ public class ServiceNowExecution {
         this.vaultConfiguration = vaultConfiguration;
         this.serviceNowItem = serviceNowItem;
         this.credentials = CredentialsUtil.findCredentials(serviceNowConfiguration.getPatchUrl(serviceNowItem), credentialsId, vaultConfiguration, project);
+        this.clientBuilder = HttpClientBuilder.create().useSystemProperties();
     }
 
     public CloseableHttpResponse createChange() throws IOException {
@@ -100,8 +102,11 @@ public class ServiceNowExecution {
         return sendRequest(requestBase);
     }
 
+    void setClientBuilder(HttpClientBuilder clientBuilder) {
+        this.clientBuilder = clientBuilder;
+    }
+
     private CloseableHttpResponse sendRequest(HttpRequestBase requestBase) throws IOException {
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create().useSystemProperties();
         HttpContext httpContext = new BasicHttpContext();
         CloseableHttpClient httpClient = auth(requestBase, clientBuilder, httpContext);
         return httpClient.execute(requestBase, httpContext);
