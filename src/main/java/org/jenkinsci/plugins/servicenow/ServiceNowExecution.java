@@ -58,7 +58,7 @@ public class ServiceNowExecution {
         this.serviceNowConfiguration = serviceNowConfiguration;
         this.vaultConfiguration = vaultConfiguration;
         this.serviceNowItem = serviceNowItem;
-        this.credentials = CredentialsUtil.findCredentials(serviceNowConfiguration.getPatchUrl(serviceNowItem), credentialsId, vaultConfiguration, project);
+        this.credentials = CredentialsUtil.findCredentials(serviceNowConfiguration.getBaseUrl(serviceNowConfiguration.getInstance()), credentialsId, vaultConfiguration, project);
     }
 
     public CloseableHttpResponse createChange() throws IOException {

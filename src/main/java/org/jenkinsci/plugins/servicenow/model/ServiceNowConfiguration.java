@@ -20,8 +20,6 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
 
 
     private String instance;
-    private String username;
-    private String password;
     private String credentialId;
     private String producerId;
 
@@ -43,24 +41,6 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
         this.producerId = producerId;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    @DataBoundSetter
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    @DataBoundSetter
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getCredentialId() {
         return credentialId;
     }
@@ -68,17 +48,6 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
     @DataBoundSetter
     public void setCredentialId(String credentialId) {
         this.credentialId = credentialId;
-    }
-
-    public String getAuthorizationHeader() {
-        if (username == null) {
-            return null;
-        }
-        try {
-            return "Basic " + new String(Base64.encodeBase64(getAuthBytes()), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new ServiceNowPluginException("Failed to encode username password to UTF-8");
-        }
     }
 
     public String getAttachmentUrl(ServiceNowItem serviceNowItem) {
@@ -101,24 +70,8 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
         return getBaseUrl(getInstance())+"/"+PRODUCER_URI+"/"+getProducerId()+"/submit_producer";
     }
 
-    private String getBaseUrl(String instance) {
+    public String getBaseUrl(String instance) {
         return "https://" + instance + ".service-now.com";
-    }
-
-
-    private byte[] getAuthBytes() {
-        try {
-            return String.join(":", username, password).getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new ServiceNowPluginException("Failed to encode username password to UTF-8");
-        }
-
-    }
-
-    public void validate() {
-        if ((username == null || password == null) && credentialId == null) {
-            throw new ServiceNowPluginException("You must authenticate via username/password or credentialId");
-        }
     }
 
     @Extension
