@@ -17,7 +17,7 @@
     </properties>
     <name>Service Now Step Plugin</name>
     <description>Provides an interface to the Service Now API in Jenkins workflow steps</description>
-    <url>TODO</url>
+    <url>https://wiki.jenkins.io/display/JENKINS/Service+Now+Plugin</url>
     <dependencies>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
@@ -148,9 +148,9 @@
         </pluginRepository>
     </pluginRepositories>
     <scm>
-        <connection>scm:git:ssh://github.com/jmcshane/service-now-jenkins-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/jmcshane/service-now-jenkins-plugin.git</developerConnection>
-        <url>https://github.com/jmcshane/service-now-jenkins-plugin</url>
+        <connection>scm:git:ssh://github.com/jenkinsci/service-now-plugin.git</connection>
+        <developerConnection>scm:git:ssh://github.com/jenkinsci/service-now-plugin.git</developerConnection>
+        <url>https://github.com/jenkinsci/service-now-plugin</url>
       <tag>HEAD</tag>
   </scm>
     <developers>
