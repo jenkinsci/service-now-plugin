@@ -3,20 +3,15 @@ package org.jenkinsci.plugins.servicenow.workflow;
 import hudson.Extension;
 import hudson.model.Item;
 import hudson.model.Run;
-import jenkins.plugins.http_request.ResponseHandle;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.jenkinsci.plugins.servicenow.ResponseContentSupplier;
-import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
 import org.jenkinsci.plugins.servicenow.ServiceNowExecution;
-import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
-import org.jenkinsci.plugins.workflow.steps.Step;
+import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
-import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -63,7 +58,7 @@ public class CreateChangeStep extends AbstractServiceNowStep {
             ServiceNowExecution exec = ServiceNowExecution.from(step, getProject());
 
             CloseableHttpResponse response = exec.createChange();
-            return new ResponseContentSupplier(ResponseHandle.STRING, response);
+            return new ResponseContentSupplier(ResponseContentSupplier.ResponseHandle.STRING, response);
         }
 
         Item getProject() throws IOException, InterruptedException {
