@@ -15,7 +15,7 @@
         <workflow-cps-plugin.version>2.21</workflow-cps-plugin.version>
         <workflow-support-plugin.version>2.9</workflow-support-plugin.version>
     </properties>
-    <name>Service Now Step Plugin</name>
+    <name>Service Now Plugin</name>
     <description>Provides an interface to the Service Now API in Jenkins workflow steps</description>
     <url>https://wiki.jenkins.io/display/JENKINS/Service+Now+Plugin</url>
     <dependencies>
