@@ -7,7 +7,7 @@
         <version>2.32</version>
     </parent>
     <artifactId>service-now</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.60.1</jenkins.version>
