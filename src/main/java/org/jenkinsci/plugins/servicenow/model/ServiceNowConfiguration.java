@@ -72,7 +72,6 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
         return "https://" + getInstance() + ".service-now.com";
     }
 
-
     @Extension
     public static class DescriptorImpl extends Descriptor<ServiceNowConfiguration> {
         @Override
