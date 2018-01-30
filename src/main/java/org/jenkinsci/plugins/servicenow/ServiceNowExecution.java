@@ -1,13 +1,7 @@
 package org.jenkinsci.plugins.servicenow;
 
 import com.cloudbees.plugins.credentials.Credentials;
-import com.cloudbees.plugins.credentials.CredentialsMatchers;
-import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
-import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
-import com.datapipe.jenkins.vault.credentials.VaultAppRoleCredential;
-import com.datapipe.jenkins.vault.credentials.VaultCredential;
 import hudson.model.Item;
-import hudson.security.ACL;
 import org.apache.http.Header;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.client.AuthCache;
@@ -34,14 +28,10 @@ import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowItem;
 import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
 import org.jenkinsci.plugins.servicenow.util.CredentialsUtil;
-import org.jenkinsci.plugins.servicenow.util.ServiceNowCTasks;
 import org.jenkinsci.plugins.servicenow.workflow.AbstractServiceNowStep;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Map;
 
 public class ServiceNowExecution {
 
@@ -58,7 +48,7 @@ public class ServiceNowExecution {
         this.serviceNowConfiguration = serviceNowConfiguration;
         this.vaultConfiguration = vaultConfiguration;
         this.serviceNowItem = serviceNowItem;
-        this.credentials = CredentialsUtil.findCredentials(serviceNowConfiguration.getBaseUrl(serviceNowConfiguration.getInstance()), credentialsId, vaultConfiguration, project);
+        this.credentials = CredentialsUtil.findCredentials(serviceNowConfiguration.getBaseUrl(), credentialsId, vaultConfiguration, project);
     }
 
     public CloseableHttpResponse createChange() throws IOException {

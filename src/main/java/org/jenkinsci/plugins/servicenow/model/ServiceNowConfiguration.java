@@ -3,8 +3,6 @@ package org.jenkinsci.plugins.servicenow.model;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
-import org.apache.commons.codec.binary.Base64;
-import org.jenkinsci.plugins.servicenow.ServiceNowPluginException;
 import org.jenkinsci.plugins.servicenow.util.ServiceNowCTasks;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -51,27 +49,27 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
     }
 
     public String getAttachmentUrl(ServiceNowItem serviceNowItem) {
-        return getBaseUrl(getInstance())+"/"+ATTACHMENT_API+"?file_name="+serviceNowItem.getFilename()+"&table_name="+serviceNowItem.getTable()+"&table_sys_id="+serviceNowItem.getSysId();
+        return getBaseUrl()+"/"+ATTACHMENT_API+"?file_name="+serviceNowItem.getFilename()+"&table_name="+serviceNowItem.getTable()+"&table_sys_id="+serviceNowItem.getSysId();
     }
 
     public String getCTasksUrl(ServiceNowItem serviceNowItem) throws UnsupportedEncodingException {
-        return getBaseUrl(getInstance())+"/"+TABLE_API+"/change_task?change_request="+ serviceNowItem.getSysId()+"&short_description="+ URLEncoder.encode(ServiceNowCTasks.valueOf(serviceNowItem.getcTask()).getDescription(), "UTF-8");
+        return getBaseUrl()+"/"+TABLE_API+"/change_task?change_request="+ serviceNowItem.getSysId()+"&short_description="+ URLEncoder.encode(ServiceNowCTasks.valueOf(serviceNowItem.getcTask()).getDescription(), "UTF-8");
     }
 
     public String getCurrentStateUrl(String sysId) {
-        return getBaseUrl(getInstance())+"/"+TABLE_API+"/change_request/"+ sysId+"?sysparm_fields=state";
+        return getBaseUrl()+"/"+TABLE_API+"/change_request/"+ sysId+"?sysparm_fields=state";
     }
 
     public String getPatchUrl(ServiceNowItem serviceNowItem) {
-        return getBaseUrl(getInstance())+"/"+TABLE_API+"/"+ serviceNowItem.getTable()+"/"+ serviceNowItem.getSysId();
+        return getBaseUrl()+"/"+TABLE_API+"/"+ serviceNowItem.getTable()+"/"+ serviceNowItem.getSysId();
     }
 
     public String getProducerRequestUrl() {
-        return getBaseUrl(getInstance())+"/"+PRODUCER_URI+"/"+getProducerId()+"/submit_producer";
+        return getBaseUrl()+"/"+PRODUCER_URI+"/"+getProducerId()+"/submit_producer";
     }
 
-    public String getBaseUrl(String instance) {
-        return "https://" + instance + ".service-now.com";
+    public String getBaseUrl() {
+        return "https://" + getInstance() + ".service-now.com";
     }
 
     @Extension
