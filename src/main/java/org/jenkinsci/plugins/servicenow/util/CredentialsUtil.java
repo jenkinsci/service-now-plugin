@@ -8,10 +8,11 @@ import com.datapipe.jenkins.vault.credentials.VaultAppRoleCredential;
 import com.datapipe.jenkins.vault.credentials.VaultCredential;
 import hudson.model.Item;
 import hudson.security.ACL;
-import org.jenkinsci.plugins.servicenow.VaultService;
 import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
 
 import java.util.Map;
+
+import static org.jenkinsci.plugins.servicenow.UtilsKt.readVaultData;
 
 public class CredentialsUtil {
 
@@ -42,7 +43,7 @@ public class CredentialsUtil {
             creds = new org.apache.http.auth.UsernamePasswordCredentials(((StandardUsernamePasswordCredentials)credentials).getUsername(), ((StandardUsernamePasswordCredentials)credentials).getPassword().getPlainText());
         }
         if(credentials instanceof VaultAppRoleCredential) {
-            Map<String, String> vaultData = VaultService.readVaultData(vaultConfiguration, (VaultCredential) credentials);
+            Map<String, String> vaultData = readVaultData(vaultConfiguration, (VaultCredential) credentials);
             creds = new org.apache.http.auth.UsernamePasswordCredentials(vaultData.get("username"), vaultData.get("password"));
         }
         return creds;
