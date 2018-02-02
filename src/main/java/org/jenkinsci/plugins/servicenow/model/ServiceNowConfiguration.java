@@ -3,7 +3,7 @@ package org.jenkinsci.plugins.servicenow.model;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
-import org.jenkinsci.plugins.servicenow.util.ServiceNowCTasks;
+import org.jetbrains.annotations.NotNull;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -18,7 +18,6 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
 
 
     private String instance;
-    private String credentialId;
     private String producerId;
 
     @DataBoundConstructor
@@ -39,21 +38,12 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
         this.producerId = producerId;
     }
 
-    public String getCredentialId() {
-        return credentialId;
-    }
-
-    @DataBoundSetter
-    public void setCredentialId(String credentialId) {
-        this.credentialId = credentialId;
-    }
-
     public String getAttachmentUrl(ServiceNowItem serviceNowItem) {
         return getBaseUrl()+"/"+ATTACHMENT_API+"?file_name="+serviceNowItem.getFilename()+"&table_name="+serviceNowItem.getTable()+"&table_sys_id="+serviceNowItem.getSysId();
     }
 
     public String getCTasksUrl(ServiceNowItem serviceNowItem) throws UnsupportedEncodingException {
-        return getBaseUrl()+"/"+TABLE_API+"/change_task?change_request="+ serviceNowItem.getSysId()+"&short_description="+ URLEncoder.encode(ServiceNowCTasks.valueOf(serviceNowItem.getcTask()).getDescription(), "UTF-8");
+        return getBaseUrl()+"/"+TABLE_API+"/change_task?change_request="+ serviceNowItem.getSysId()+"&short_description="+ URLEncoder.encode(serviceNowItem.getcTask(), "UTF-8");
     }
 
     public String getCurrentStateUrl(String sysId) {
@@ -75,6 +65,7 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
 
     @Extension
     public static class DescriptorImpl extends Descriptor<ServiceNowConfiguration> {
+        @NotNull
         @Override
         public String getDisplayName() {
             return "ServiceNow Configuration";

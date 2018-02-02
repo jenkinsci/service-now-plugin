@@ -9,7 +9,6 @@ import org.jenkinsci.plugins.servicenow.ServiceNowExecution;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowItem;
 import org.jenkinsci.plugins.servicenow.model.StateResult;
-import org.jenkinsci.plugins.servicenow.util.ServiceNowStates;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
@@ -45,7 +44,7 @@ public class GetChangeStateStep extends AbstractServiceNowStep {
         }
     }
 
-    public static final class Execution extends AbstractItemProviderExecution<String> {
+    public static final class Execution extends AbstractItemProviderExecution<Integer> {
 
         private transient GetChangeStateStep step;
 
@@ -55,14 +54,14 @@ public class GetChangeStateStep extends AbstractServiceNowStep {
         }
 
         @Override
-        protected String run() throws Exception {
+        protected Integer run() throws Exception {
             ServiceNowExecution exec = ServiceNowExecution.from(step, getProject());
 
             CloseableHttpResponse response = exec.getChangeState();
             ResponseContentSupplier responseContent = new ResponseContentSupplier(ResponseContentSupplier.ResponseHandle.STRING, response);
             ObjectMapper mapper = new ObjectMapper();
             StateResult stateResult = mapper.readValue(responseContent.getContent(), StateResult.class);
-            return ServiceNowStates.getState(stateResult.getState()).name();
+            return stateResult.getState();
         }
 
         private static final long serialVersionUID = 1L;
