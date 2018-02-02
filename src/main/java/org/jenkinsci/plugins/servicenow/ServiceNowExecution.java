@@ -27,11 +27,13 @@ import org.apache.http.protocol.HttpContext;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowItem;
 import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
-import org.jenkinsci.plugins.servicenow.util.CredentialsUtil;
 import org.jenkinsci.plugins.servicenow.workflow.AbstractServiceNowStep;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import static org.jenkinsci.plugins.servicenow.UtilsKt.findCredentials;
+import static org.jenkinsci.plugins.servicenow.UtilsKt.readCredentials;
 
 public class ServiceNowExecution {
 
@@ -48,7 +50,7 @@ public class ServiceNowExecution {
         this.serviceNowConfiguration = serviceNowConfiguration;
         this.vaultConfiguration = vaultConfiguration;
         this.serviceNowItem = serviceNowItem;
-        this.credentials = CredentialsUtil.findCredentials(serviceNowConfiguration.getBaseUrl(), credentialsId, vaultConfiguration, project);
+        this.credentials = findCredentials(serviceNowConfiguration.getBaseUrl(), credentialsId, vaultConfiguration, project);
     }
 
     public CloseableHttpResponse createChange() throws IOException {
@@ -108,7 +110,7 @@ public class ServiceNowExecution {
         CredentialsProvider provider = new BasicCredentialsProvider();
         provider.setCredentials(
                 new AuthScope(requestBase.getURI().getHost(), requestBase.getURI().getPort()),
-                CredentialsUtil.readCredentials(credentials, vaultConfiguration));
+                readCredentials(credentials, vaultConfiguration));
         clientBuilder.setDefaultCredentialsProvider(provider);
 
         AuthCache authCache = new BasicAuthCache();
