@@ -1,6 +1,6 @@
 # ServiceNow API Jenkins Plugin
 
-[![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/service-now-plugin/master)](https://ci.jenkins.io/job/Plugins/job/service-now-plugin/job/master/)
+[![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/service-now-plugin/master)](https://ci.jenkins.io/job/Plugins/job/service-now-plugin/job/master/)[![Maintainability](https://api.codeclimate.com/v1/badges/2e3da6a8c0e1260ce7fb/maintainability)](https://codeclimate.com/github/jenkinsci/service-now-plugin/maintainability)
 
 This is a Jenkins plugin that allows a workflow step
 to automatically build API requests for the ServiceNow API and return appropriately parsed
