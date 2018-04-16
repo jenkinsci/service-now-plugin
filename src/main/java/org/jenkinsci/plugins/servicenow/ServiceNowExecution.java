@@ -24,6 +24,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.jenkinsci.plugins.servicenow.credentials.CredentialsLocatorStrategy;
+import org.jenkinsci.plugins.servicenow.credentials.CredentialsUtilCredentialsProvider;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowItem;
 import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
@@ -39,40 +41,59 @@ public class ServiceNowExecution {
     private final ServiceNowConfiguration serviceNowConfiguration;
     private final VaultConfiguration vaultConfiguration;
     private final ServiceNowItem serviceNowItem;
+    private HttpClientBuilder clientBuilder;
 
     public static ServiceNowExecution from(AbstractServiceNowStep step, Item project) {
-        return new ServiceNowExecution(step.getServiceNowConfiguration(), step.getServiceNowItem(), step.getCredentialsId(), step.vaultConfiguration, project);
+        return new ServiceNowExecution(step.getServiceNowConfiguration(), step.getServiceNowItem(),
+                step.getCredentialsId(), step.vaultConfiguration, project);
     }
 
-    private ServiceNowExecution(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem, String credentialsId, VaultConfiguration vaultConfiguration, Item project) {
+    public static ServiceNowExecution from(AbstractServiceNowStep step, Item project,
+                                           HttpClientBuilder httpClientBuilder, CredentialsLocatorStrategy locatorStrategy) {
+        return new ServiceNowExecution(step.getServiceNowConfiguration(),
+                step.getServiceNowItem(), step.getCredentialsId(), step.vaultConfiguration, project,
+                httpClientBuilder, locatorStrategy);
+    }
+
+    private ServiceNowExecution(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem,
+                                String credentialsId, VaultConfiguration vaultConfiguration, Item project) {
+        this(serviceNowConfiguration, serviceNowItem, credentialsId, vaultConfiguration,
+                project, HttpClientBuilder.create().useSystemProperties(), new CredentialsUtilCredentialsProvider());
+    }
+
+    private ServiceNowExecution(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem, String credentialsId,
+                                VaultConfiguration vaultConfiguration, Item project,
+                                HttpClientBuilder clientBuilder, CredentialsLocatorStrategy locatorStrategy) {
         this.serviceNowConfiguration = serviceNowConfiguration;
         this.vaultConfiguration = vaultConfiguration;
         this.serviceNowItem = serviceNowItem;
-        this.credentials = CredentialsUtil.findCredentials(serviceNowConfiguration.getBaseUrl(), credentialsId, vaultConfiguration, project);
+        this.clientBuilder = clientBuilder;
+        this.credentials = locatorStrategy.getCredentials(serviceNowConfiguration.getBaseUrl(),
+                credentialsId, vaultConfiguration, project);
     }
 
     public CloseableHttpResponse createChange() throws IOException {
         HttpPost requestBase = new HttpPost(serviceNowConfiguration.getProducerRequestUrl());
-        requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
+        setJsonContentType(requestBase);
         return sendRequest(requestBase);
     }
 
     public CloseableHttpResponse updateChange() throws IOException {
         HttpPatch requestBase = new HttpPatch(serviceNowConfiguration.getPatchUrl(serviceNowItem));
-        requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
+        setJsonContentType(requestBase);
         requestBase.setEntity(buildEntity(serviceNowItem.getBody()));
         return sendRequest(requestBase);
     }
 
     public CloseableHttpResponse getChangeState() throws IOException {
         HttpGet requestBase = new HttpGet(serviceNowConfiguration.getCurrentStateUrl(serviceNowItem.getSysId()));
-        requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
+        setJsonContentType(requestBase);
         return sendRequest(requestBase);
     }
 
     public CloseableHttpResponse getCTask() throws IOException {
         HttpGet requestBase = new HttpGet(serviceNowConfiguration.getCTasksUrl(serviceNowItem));
-        requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
+        setJsonContentType(requestBase);
         return sendRequest(requestBase);
     }
 
@@ -91,7 +112,6 @@ public class ServiceNowExecution {
     }
 
     private CloseableHttpResponse sendRequest(HttpRequestBase requestBase) throws IOException {
-        HttpClientBuilder clientBuilder = HttpClientBuilder.create().useSystemProperties();
         HttpContext httpContext = new BasicHttpContext();
         CloseableHttpClient httpClient = auth(requestBase, clientBuilder, httpContext);
         return httpClient.execute(requestBase, httpContext);
@@ -102,6 +122,10 @@ public class ServiceNowExecution {
             return authenticate(clientBuilder, requestBase, httpContext);
         }
         return clientBuilder.build();
+    }
+
+    private void setJsonContentType(HttpRequestBase requestBase) {
+        requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
     }
 
     private CloseableHttpClient authenticate(HttpClientBuilder clientBuilder, HttpRequestBase requestBase, HttpContext httpContext) {
