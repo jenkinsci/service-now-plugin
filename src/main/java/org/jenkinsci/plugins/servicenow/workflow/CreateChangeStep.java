@@ -48,9 +48,9 @@ public class CreateChangeStep extends AbstractServiceNowStep {
 
     public static final class Execution extends SynchronousNonBlockingStepExecution<ResponseContentSupplier> {
 
-        private HttpClientBuilder clientBuilder;
+        private transient HttpClientBuilder clientBuilder;
         private transient CreateChangeStep step;
-        private CredentialsLocatorStrategy credentialsLocatorStrategy;
+        private transient CredentialsLocatorStrategy credentialsLocatorStrategy;
 
         Execution(@Nonnull StepContext context, @Nonnull CreateChangeStep step) {
             super(context);
