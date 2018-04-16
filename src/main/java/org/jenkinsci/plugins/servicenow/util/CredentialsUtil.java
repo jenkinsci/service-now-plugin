@@ -10,6 +10,7 @@ import hudson.model.Item;
 import hudson.security.ACL;
 import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.jenkinsci.plugins.servicenow.UtilsKt.readVaultData;
@@ -20,21 +21,22 @@ public class CredentialsUtil {
         Credentials credentials = null;
         if(vaultConfiguration != null) {
             credentials = CredentialsMatchers.firstOrNull(
-                    com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
-                            VaultAppRoleCredential.class,
-                            project.getParent(), ACL.SYSTEM,
-                            URIRequirementBuilder.fromUri(url).build()),
+                    getCredentials(url, VaultAppRoleCredential.class,project),
                     CredentialsMatchers.withId(credentialId));
         }
         if(credentials == null) {
             credentials = CredentialsMatchers.firstOrNull(
-                    com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
-                            StandardUsernamePasswordCredentials.class,
-                            project.getParent(), ACL.SYSTEM,
-                            URIRequirementBuilder.fromUri(url).build()),
+                    getCredentials(url, StandardUsernamePasswordCredentials.class,project),
                     CredentialsMatchers.withId(credentialId));
         }
         return credentials;
+    }
+    
+    private static <C extends Credentials> List<C> getCredentials(String url, Class<C> clazz, Item project) {
+        return com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+                clazz,
+                project.getParent(), ACL.SYSTEM,
+                URIRequirementBuilder.fromUri(url).build());
     }
 
     public static org.apache.http.auth.Credentials readCredentials(Credentials credentials, VaultConfiguration vaultConfiguration) {
