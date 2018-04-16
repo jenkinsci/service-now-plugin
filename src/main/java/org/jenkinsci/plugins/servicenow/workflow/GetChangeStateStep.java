@@ -2,28 +2,20 @@ package org.jenkinsci.plugins.servicenow.workflow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hudson.Extension;
-import hudson.model.Item;
 import hudson.model.Run;
-import jenkins.plugins.http_request.ResponseHandle;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.jenkinsci.plugins.servicenow.ResponseContentSupplier;
 import org.jenkinsci.plugins.servicenow.ServiceNowExecution;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowItem;
 import org.jenkinsci.plugins.servicenow.model.StateResult;
-import org.jenkinsci.plugins.servicenow.model.VaultConfiguration;
 import org.jenkinsci.plugins.servicenow.util.ServiceNowStates;
-import org.jenkinsci.plugins.workflow.steps.Step;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
-import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
-import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
@@ -67,7 +59,7 @@ public class GetChangeStateStep extends AbstractServiceNowStep {
             ServiceNowExecution exec = ServiceNowExecution.from(step, getProject());
 
             CloseableHttpResponse response = exec.getChangeState();
-            ResponseContentSupplier responseContent = new ResponseContentSupplier(ResponseHandle.STRING, response);
+            ResponseContentSupplier responseContent = new ResponseContentSupplier(ResponseContentSupplier.ResponseHandle.STRING, response);
             ObjectMapper mapper = new ObjectMapper();
             StateResult stateResult = mapper.readValue(responseContent.getContent(), StateResult.class);
             return ServiceNowStates.getState(stateResult.getState()).name();

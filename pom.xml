@@ -4,20 +4,20 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>2.33</version>
+        <version>2.32</version>
     </parent>
     <artifactId>service-now</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
-        <jenkins.version>2.73.3</jenkins.version>
+        <jenkins.version>2.60.1</jenkins.version>
         <java.level>8</java.level>
         <workflow-cps-plugin.version>2.21</workflow-cps-plugin.version>
         <workflow-support-plugin.version>2.9</workflow-support-plugin.version>
     </properties>
-    <name>Service Now Step Plugin</name>
+    <name>Service Now Plugin</name>
     <description>Provides an interface to the Service Now API in Jenkins workflow steps</description>
-    <url>TODO</url>
+    <url>https://wiki.jenkins.io/display/JENKINS/Service+Now+Plugin</url>
     <dependencies>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
@@ -31,14 +31,8 @@
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>http_request</artifactId>
-            <version>1.8.22</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.jenkins-ci.plugins</groupId>
-                    <artifactId>credentials</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>apache-httpcomponents-client-4-api</artifactId>
+            <version>4.5.3-2.0</version>
         </dependency>
         <dependency>
             <groupId>com.datapipe.jenkins.plugins</groupId>
@@ -96,7 +90,7 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>junit</artifactId>
-            <version>1.15</version>
+            <version>1.19</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -114,7 +108,7 @@
         <dependency>
             <groupId>org.jenkins-ci.main</groupId>
             <artifactId>jenkins-test-harness-tools</artifactId>
-            <version>2.0</version>
+            <version>2.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -127,6 +121,23 @@
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>script-security</artifactId>
             <version>1.28</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jre8</artifactId>
+            <version>1.2.21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test</artifactId>
+            <version>1.2.21</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>support-core</artifactId>
+            <version>2.32</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
@@ -144,11 +155,72 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.jenkins-ci.tools</groupId>
-                <artifactId>maven-hpi-plugin</artifactId>
-                <configuration>
-                    <disabledTestInjection>true</disabledTestInjection>
-                </configuration>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>1.2.21</version>
+
+                <executions>
+                    <execution>
+                        <id>compile</id>
+
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>test-compile</id>
+
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+                            </sourceDirs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+
+                        <phase>none</phase>
+                    </execution>
+
+                    <execution>
+                        <id>default-testCompile</id>
+
+                        <phase>none</phase>
+                    </execution>
+
+                    <execution>
+                        <id>java-compile</id>
+
+                        <phase>compile</phase>
+
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>java-test-compile</id>
+
+                        <phase>test-compile</phase>
+
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -165,10 +237,11 @@
         </pluginRepository>
     </pluginRepositories>
     <scm>
-        <connection>scm:git:ssh://github.com/jmcshane/service-now-jenkins-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/jmcshane/service-now-jenkins-plugin.git</developerConnection>
-        <url>https://github.com/jmcshane/service-now-jenkins-plugin</url>
-    </scm>
+        <connection>scm:git:ssh://github.com/jenkinsci/service-now-plugin.git</connection>
+        <developerConnection>scm:git:ssh://github.com/jenkinsci/service-now-plugin.git</developerConnection>
+        <url>https://github.com/jenkinsci/service-now-plugin</url>
+      <tag>HEAD</tag>
+  </scm>
     <developers>
         <developer>
             <id>jmcshane</id>
@@ -178,7 +251,7 @@
         <developer>
             <id>pdkreid</id>
             <name>Peter Kreidermacher</name>
-            <email>pdkreid@me.com</email>
+            <email>pdkreid@gmail.com</email>
         </developer>
     </developers>
 </project>

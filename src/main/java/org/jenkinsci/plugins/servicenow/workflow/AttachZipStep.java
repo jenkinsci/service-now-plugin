@@ -2,9 +2,7 @@ package org.jenkinsci.plugins.servicenow.workflow;
 
 import hudson.Extension;
 import hudson.FilePath;
-import hudson.model.Item;
 import hudson.model.Run;
-import jenkins.plugins.http_request.ResponseHandle;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.jenkinsci.plugins.servicenow.ResponseContentSupplier;
 import org.jenkinsci.plugins.servicenow.ServiceNowExecution;
@@ -13,11 +11,9 @@ import org.jenkinsci.plugins.servicenow.model.ServiceNowItem;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
-import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Set;
@@ -63,7 +59,7 @@ public class AttachZipStep extends AbstractServiceNowStep {
 
             try (InputStream zipStream = getContext().get(FilePath.class).child(step.getServiceNowItem().getFilename()).read()) {
                 CloseableHttpResponse response = exec.attachZip(zipStream);
-                return new ResponseContentSupplier(ResponseHandle.STRING, response);
+                return new ResponseContentSupplier(ResponseContentSupplier.ResponseHandle.STRING, response);
             }
         }
 

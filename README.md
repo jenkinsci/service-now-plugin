@@ -1,6 +1,6 @@
 # ServiceNow API Jenkins Plugin
 
-This is a Jenkins plugin that allows a workflow step that extends the `http_request` plugin
+This is a Jenkins plugin that allows a workflow step
 to automatically build API requests for the ServiceNow API and return appropriately parsed
 values based on the type of API called.
 

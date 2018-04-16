@@ -3,6 +3,18 @@ package org.jenkinsci.plugins.servicenow;
 /**
  * Created by c5403 on 1/22/2018.
  */
+
+import com.google.common.base.Strings;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.CharStreams;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,22 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jenkins.plugins.http_request.ResponseHandle;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.entity.ContentType;
-import org.apache.http.impl.client.CloseableHttpClient;
-
-import com.google.common.base.Strings;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.Whitelisted;
-
 public class ResponseContentSupplier implements Serializable, AutoCloseable {
 
+    public enum ResponseHandle {
+        NONE,
+        LEAVE_OPEN,
+        STRING
+    }
     private static final long serialVersionUID = 1L;
 
     private int status;
