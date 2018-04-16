@@ -9,22 +9,29 @@ information and configure the API requests.
 
 # Plugin Usage
 
-## `serviceNow_createChange`
+## All Steps
 
 ### Required Parameters
 
-`serviceNowConfiguration`
-* `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
-* `producerId` - Producer ID of the standard change to create
+Every step must provide these two arguments in order to connect to the ServiceNow instance
 
-`credentialsId` - Jenkins credentials for Username with Password credentials (or Vault Role Credentials if including vaultConfiguration below)
-
+* `serviceNowConfiguration`
+  * `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
+* `credentialsId` - Jenkins credentials for Username with Password credentials or Vault Role Credentials, if including `vaultConfiguration` below
 
 ### Optional Parameters
 
 `vaultConfiguration`
 * `url` - Vault url
 * `path` - Vault path to get authentication values
+
+## `serviceNow_createChange`
+
+### Required Parameters
+
+`serviceNowConfiguration`
+* `producerId` - Producer ID of the standard change to create
+
 
 ### Response
 
@@ -51,21 +58,10 @@ def changeNumber = createResponse.result.number
 
 ### Required Parameters
 
-`serviceNowConfiguration`
-* `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
-
-`credentialsId` - Jenkins credentials for Username with Password credentials (or Vault Role Credentials if including vaultConfiguration below)
-
 `serviceNowItem`
 * `table` - Table of the item to be updated (ex. change_request, change_task)
 * `sysId` - SysId of the item to be updated
 * `body` - Json message (as String) of the properties and values to be updated
-
-### Optional Parameters
-
-`vaultConfiguration`
-* `url` - Vault url
-* `path` - Vault path to get authentication values
 
 ### Response
 
@@ -87,19 +83,8 @@ def response = serviceNow_UpdateChangeItem serviceNowConfiguration: [instance: '
 
 ### Required Parameters
 
-`serviceNowConfiguration`
-* `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
-
-`credentialsId` - Jenkins credentials for Username with Password credentials (or Vault Role Credentials if including vaultConfiguration below)
-
 `serviceNowItem`
 * `sysId` - SysId of the change request
-
-### Optional Parameters
-
-`vaultConfiguration`
-* `url` - Vault url
-* `path` - Vault path to get authentication values
 
 ### Response
 
@@ -116,20 +101,9 @@ echo response //NEW
 
 ### Required Parameters
 
-`serviceNowConfiguration`
-* `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
-
-`credentialsId` - Jenkins credentials for Username with Password credentials (or Vault Role Credentials if including vaultConfiguration below)
-
 `serviceNowItem`
 * `sysId` - SysId change to get CTask from
 * `ctask` - String representation of CTask (see [ServiceNowCTasks](src/main/java/org/jenkinsci/plugins/servicenow/util/ServiceNowCTasks.java))
-
-### Optional Parameters
-
-`vaultConfiguration`
-* `url` - Vault url
-* `path` - Vault path to get authentication values
 
 ### Response
 
@@ -150,20 +124,9 @@ def ctaskNumber = createResponse.result[0].number
 
 ### Required Parameters
 
-`serviceNowConfiguration`
-* `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
-
-`credentialsId` - Jenkins credentials for Username with Password credentials (or Vault Role Credentials if including vaultConfiguration below)
-
 `serviceNowItem`
 * `sysId` - SysId to attach to (can be Change Request or CTask)
 * `body` - String body of file to attach
-
-### Optional Parameters
-
-`vaultConfiguration`
-* `url` - Vault url
-* `path` - Vault path to get authentication values
 
 ### Response
 
@@ -182,20 +145,9 @@ Attach a zip file (from the current directory) to a service-now item
 
 ### Required Parameters
 
-`serviceNowConfiguration`
-* `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
-
-`credentialsId` - Jenkins credentials for Username with Password credentials (or Vault Role Credentials if including vaultConfiguration below)
-
 `serviceNowItem`
 * `sysId` - SysId to attach to (can be Change Request or CTask)
 * `filename` - Filename of the zip file to attach
-
-### Optional Parameters
-
-`vaultConfiguration`
-* `url` - Vault url
-* `path` - Vault path to get authentication values
 
 ### Response
 
