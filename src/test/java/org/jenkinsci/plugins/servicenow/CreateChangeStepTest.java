@@ -1,18 +1,39 @@
 package org.jenkinsci.plugins.servicenow;
 
+import com.github.paweladamski.httpclientmock.HttpClientMock;
+import org.jenkinsci.plugins.servicenow.credentials.CredentialsLocatorStrategy;
 import org.jenkinsci.plugins.servicenow.model.ServiceNowConfiguration;
 import org.jenkinsci.plugins.servicenow.workflow.CreateChangeStep;
-import org.jenkinsci.plugins.workflow.steps.StepContext;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
-public class CreateChangeStepTest {
+import static org.mockito.Mockito.when;
 
-    private StepContext jenkinsStepContext = Mockito.mock(StepContext.class);
+public class CreateChangeStepTest extends AbstractStepTest {
+
+    protected CreateChangeStep.Execution execution;
+    private CredentialsLocatorStrategy locatorStrategy = Mockito.mock(CredentialsLocatorStrategy.class);
+
+    @Before
+    public void setup() throws Exception {
+        init();
+        CreateChangeStep step = new CreateChangeStep(baseServiceNowConfig(), "abc123");
+        execution = (CreateChangeStep.Execution) step.start(jenkinsStepContext);
+        execution.setClientBuilder(httpClientBuilder);
+        execution.setCredentialsLocatorStrategy(locatorStrategy);
+    }
 
     @Test
-    public void validateHTTPCallForCreateChange() {
-        CreateChangeStep step = new CreateChangeStep(new ServiceNowConfiguration("test"), "abc123");
-        step.start(jenkinsStepContext);
+    public void validateHTTPCallForCreateChange() throws Exception {
+        String expectedUrl = "https://test.service-now.com/api/sn_sc/servicecatalog/items/abc999/submit_producer";
+        HttpClientMock mockHttpClient = new HttpClientMock();
+        when(httpClientBuilder.build()).thenReturn(mockHttpClient);
+        mockHttpClient.onPost(expectedUrl)
+                .doReturnStatus(200)
+                .doReturnJSON("{\"response\":\"id\"}");
+        execution.run();
+        mockHttpClient.verify().post(expectedUrl).called();
     }
 }
