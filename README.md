@@ -82,7 +82,7 @@ def sysId = createResponse.result.sys_id
 def changeNumber = createResponse.result.number
 ```
 
-### `serviceNow_UpdateChange`
+### `serviceNow_updateChangeItem`
 
 #### Required Parameters
 
