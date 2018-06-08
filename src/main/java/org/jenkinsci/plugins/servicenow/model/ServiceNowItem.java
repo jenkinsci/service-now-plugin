@@ -13,6 +13,7 @@ public class ServiceNowItem extends AbstractDescribableImpl<ServiceNowItem> {
     private String body;
     private String cTask;
     private String filename;
+    private String taskDescription;
 
     @DataBoundConstructor
     public ServiceNowItem(String table, String sysId) {
@@ -53,6 +54,15 @@ public class ServiceNowItem extends AbstractDescribableImpl<ServiceNowItem> {
 
     public String getFilename() {
         return filename;
+    }
+
+    public String getTaskDescription() {
+        return taskDescription;
+    }
+
+    @DataBoundSetter
+    public void setTaskDescription(String taskDescription) {
+        this.taskDescription = taskDescription;
     }
 
     @Extension

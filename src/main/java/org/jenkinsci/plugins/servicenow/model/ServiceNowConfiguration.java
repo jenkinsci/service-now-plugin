@@ -57,6 +57,9 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
         if (serviceNowItem.getcTask() != null) {
             base += "&short_description="+ URLEncoder.encode(ServiceNowCTasks.valueOf(serviceNowItem.getcTask()).getDescription(), "UTF-8");
         }
+        if (serviceNowItem.getTaskDescription() != null) {
+            base += "&sysparm_query=short_descriptionLIKE" + URLEncoder.encode(serviceNowItem.getTaskDescription(), "UTF-8");
+        }
         return base;
     }
 
