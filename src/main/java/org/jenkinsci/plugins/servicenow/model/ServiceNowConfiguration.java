@@ -3,7 +3,6 @@ package org.jenkinsci.plugins.servicenow.model;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
-import org.jenkinsci.plugins.servicenow.util.ServiceNowCTasks;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -53,7 +52,11 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
     }
 
     public String getCTasksUrl(ServiceNowItem serviceNowItem) throws UnsupportedEncodingException {
-        return getBaseUrl()+"/"+TABLE_API+"/change_task?change_request="+ serviceNowItem.getSysId()+"&short_description="+ URLEncoder.encode(ServiceNowCTasks.valueOf(serviceNowItem.getcTask()).getDescription(), "UTF-8");
+        String base = getBaseUrl()+"/"+TABLE_API+"/change_task?change_request="+ serviceNowItem.getSysId();
+        if (serviceNowItem.getcTask() != null) {
+            base += "&sysparm_query=short_descriptionLIKE" + URLEncoder.encode(serviceNowItem.getcTask(), "UTF-8");
+        }
+        return base;
     }
 
     public String getCurrentStateUrl(String sysId) {
