@@ -241,7 +241,6 @@
         <connection>scm:git:ssh://git@github.com:jenkinsci/service-now-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com:jenkinsci/service-now-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/service-now-plugin</url>
-      <tag>HEAD</tag>
   </scm>
     <developers>
         <developer>
