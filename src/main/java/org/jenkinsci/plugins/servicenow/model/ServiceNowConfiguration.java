@@ -53,7 +53,11 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
     }
 
     public String getCTasksUrl(ServiceNowItem serviceNowItem) throws UnsupportedEncodingException {
-        return getBaseUrl()+"/"+TABLE_API+"/change_task?change_request="+ serviceNowItem.getSysId()+"&short_description="+ URLEncoder.encode(ServiceNowCTasks.valueOf(serviceNowItem.getcTask()).getDescription(), "UTF-8");
+        String base = getBaseUrl()+"/"+TABLE_API+"/change_task?change_request="+ serviceNowItem.getSysId();
+        if (serviceNowItem.getcTask() != null) {
+            base += "&short_description="+ URLEncoder.encode(ServiceNowCTasks.valueOf(serviceNowItem.getcTask()).getDescription(), "UTF-8");
+        }
+        return base;
     }
 
     public String getCurrentStateUrl(String sysId) {
