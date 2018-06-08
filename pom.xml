@@ -7,7 +7,7 @@
         <version>2.32</version>
     </parent>
     <artifactId>service-now</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.60.1</jenkins.version>
@@ -241,6 +241,7 @@
         <connection>scm:git:git@github.com:jenkinsci/service-now-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/service-now-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/service-now-plugin</url>
+    <tag>service-now-0.0.2</tag>
   </scm>
     <developers>
         <developer>
