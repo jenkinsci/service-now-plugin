@@ -82,7 +82,7 @@ def sysId = createResponse.result.sys_id
 def changeNumber = createResponse.result.number
 ```
 
-### `serviceNow_UpdateChange`
+### `serviceNow_updateChangeItem`
 
 #### Required Parameters
 
@@ -103,7 +103,7 @@ messageJson.putAll([
                 short_description: 'My change',
                 description: 'My longer description of the change'
         ])
-def response = serviceNow_UpdateChangeItem serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [table: 'change_request', sysId: 'adg98y29thukwfd97ihu23', body: messageJson.toString()], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+def response = serviceNow_updateChangeItem serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [table: 'change_request', sysId: 'adg98y29thukwfd97ihu23', body: messageJson.toString()], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
 
 ```
 
@@ -144,6 +144,7 @@ echo response //NEW
 Get ctask of a service-now change
 ```groovy
 def response = serviceNow_getCTask serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', ctask: 'UAT_TESTING'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+def ctaskResponse = new JsonSlurper().parseText(response.content)
 def ctaskSysId = createResponse.result[0].sys_id
 def ctaskNumber = createResponse.result[0].number
 ```
