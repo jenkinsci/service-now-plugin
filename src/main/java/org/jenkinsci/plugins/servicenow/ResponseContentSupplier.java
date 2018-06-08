@@ -4,6 +4,8 @@ package org.jenkinsci.plugins.servicenow;
  * Created by c5403 on 1/22/2018.
  */
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
@@ -106,6 +108,16 @@ public class ResponseContentSupplier implements Serializable, AutoCloseable {
             throw new IllegalStateException("Error reading response. " +
                     "If you are reading the content in pipeline you should pass responseHandle: 'LEAVE_OPEN' and " +
                     "close the response(response.close()) after consume it.", e);
+        }
+    }
+
+    @Whitelisted
+    public Map<String, Object> getContentMap() {
+        String content = getContent();
+        try{
+            return new ObjectMapper().readValue(content, new TypeReference<Map<String, Object>>(){});
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
