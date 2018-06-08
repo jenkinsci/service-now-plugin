@@ -131,7 +131,7 @@ echo response //NEW
 
 `serviceNowItem`
 * `sysId` - SysId change to get CTask from
-* `ctask` - String representation of CTask (see [ServiceNowCTasks](src/main/java/org/jenkinsci/plugins/servicenow/util/ServiceNowCTasks.java))
+* `ctask` - String description of the ctask for querying (optional)
 
 #### Response
 
