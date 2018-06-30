@@ -55,6 +55,8 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
         String base = getBaseUrl()+"/"+TABLE_API+"/change_task?change_request="+ serviceNowItem.getSysId();
         if (serviceNowItem.getcTask() != null) {
             base += "&sysparm_query=short_descriptionLIKE" + URLEncoder.encode(serviceNowItem.getcTask(), "UTF-8");
+        } else if (serviceNowItem.getQuery() != null) {
+            base += "&sysparm_query=" + URLEncoder.encode(serviceNowItem.getQuery());
         }
         return base;
     }

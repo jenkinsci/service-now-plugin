@@ -26,4 +26,8 @@ public enum ServiceNowStates {
         }
         return null;
     }
+
+    public static ServiceNowStates getState(String stateName) {
+        return ServiceNowStates.valueOf(stateName);
+    }
 }

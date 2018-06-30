@@ -40,7 +40,7 @@ public class ServiceNowExecution {
     private final Credentials credentials;
     private final ServiceNowConfiguration serviceNowConfiguration;
     private final VaultConfiguration vaultConfiguration;
-    private final ServiceNowItem serviceNowItem;
+    private ServiceNowItem serviceNowItem;
     private HttpClientBuilder clientBuilder;
 
     public static ServiceNowExecution from(AbstractServiceNowStep step, Item project) {
@@ -70,6 +70,10 @@ public class ServiceNowExecution {
         this.clientBuilder = clientBuilder;
         this.credentials = locatorStrategy.getCredentials(serviceNowConfiguration.getBaseUrl(),
                 credentialsId, vaultConfiguration, project);
+    }
+
+    public void updateItem(ServiceNowItem item) {
+        this.serviceNowItem = item;
     }
 
     public CloseableHttpResponse createChange() throws IOException {
