@@ -149,6 +149,48 @@ def ctaskSysId = createResponse.result[0].sys_id
 def ctaskNumber = createResponse.result[0].number
 ```
 
+### `serviceNow_updateTask`
+
+There is often a desire to update a change task based on certain
+fields in the task. For example, you could update all planning tasks to closed 
+based on their type or update a single task that matches a specific field.
+
+This function will run either a query or search for a ctask name,
+based on the fields set on the `serviceNowItem` parameter. If there is 
+a `ctask` field set, then it will not add the `query` string, as a query is intended
+to be more broad that the `ctask` field.
+
+#### Required Parameters
+
+`serviceNowItem`
+* `sysId` - SysId change to get CTask from
+
+#### Optional Parameters
+
+Must specify one of
+
+`serviceNowItem`
+* `ctask` - String description of the ctask for querying (optional)
+* `query` - A more generic ServiceNow query to locate the task
+
+#### Response
+
+`result` - a list of ctask sys_ids that were updated
+
+#### Example
+Update all planning tasks to in progress state
+
+```groovy
+serviceNow_updateTask serviceNowConfiguration: [instance: 'exampledev'],
+  credentialsId: 'servicenow',
+  serviceNowItem: [sysId: 'fd03ba34db4f9f40ec45b2bd2b96197d',
+    query: 'change_task_type=planning',
+    body: '{"state":"2"}'
+  ]
+```
+
+
+
 ### `serviceNow_attachFile`
 
 #### Required Parameters

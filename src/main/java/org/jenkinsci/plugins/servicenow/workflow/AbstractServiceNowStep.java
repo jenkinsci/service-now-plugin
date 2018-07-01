@@ -18,7 +18,11 @@ public abstract class AbstractServiceNowStep extends Step {
 
     AbstractServiceNowStep(ServiceNowConfiguration serviceNowConfiguration, String credentialsId, ServiceNowItem serviceNowItem) {
         this.serviceNowConfiguration = serviceNowConfiguration;
-        this.credentialsId = credentialsId;
+        if (credentialsId != null) {
+            this.credentialsId = credentialsId;
+        } else {
+            this.credentialsId = serviceNowConfiguration.getCredentialId();
+        }
         this.serviceNowItem = serviceNowItem;
     }
 
