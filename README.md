@@ -198,6 +198,7 @@ serviceNow_updateTask serviceNowConfiguration: [instance: 'exampledev'],
 `serviceNowItem`
 * `sysId` - SysId to attach to (can be Change Request or CTask)
 * `body` - String body of file to attach
+* `filename` - Filename to upload into ServiceNow
 
 #### Response
 
