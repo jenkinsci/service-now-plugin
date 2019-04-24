@@ -8,7 +8,7 @@ fun readVaultData(vaultConfiguration: VaultConfiguration, credentials: VaultCred
     val accessor = VaultAccessor()
     accessor.init(vaultConfiguration.url)
     accessor.auth(credentials)
-    return accessor.read(vaultConfiguration.path)
+    return accessor.read(vaultConfiguration.path).data
 }
 
 class ServiceNowPluginException(message: String) : RuntimeException(message)
