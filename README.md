@@ -208,7 +208,7 @@ serviceNow_updateTask serviceNowConfiguration: [instance: 'exampledev'],
 Attach file to item in service-now
 ```groovy
 def myFile = readFile file: 'my-test-file.txt'
-serviceNow_attachFile serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', body: myFile], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+serviceNow_attachFile serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', body: myFile, filename: 'my-test-file.txt'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
 ```
 
 ### `serviceNow_attachZip`
