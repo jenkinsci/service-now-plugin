@@ -55,13 +55,13 @@ public class ServiceNowExecution {
                 httpClientBuilder, locatorStrategy);
     }
 
-    private ServiceNowExecution(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem,
+    protected ServiceNowExecution(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem,
                                 String credentialsId, VaultConfiguration vaultConfiguration, Item project) {
         this(serviceNowConfiguration, serviceNowItem, credentialsId, vaultConfiguration,
                 project, HttpClientBuilder.create().useSystemProperties(), new CredentialsUtilCredentialsProvider());
     }
 
-    private ServiceNowExecution(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem, String credentialsId,
+    protected ServiceNowExecution(ServiceNowConfiguration serviceNowConfiguration, ServiceNowItem serviceNowItem, String credentialsId,
                                 VaultConfiguration vaultConfiguration, Item project,
                                 HttpClientBuilder clientBuilder, CredentialsLocatorStrategy locatorStrategy) {
         this.serviceNowConfiguration = serviceNowConfiguration;
