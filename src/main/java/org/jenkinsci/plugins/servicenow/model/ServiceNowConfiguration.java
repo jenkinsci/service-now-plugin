@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.servicenow.model;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -15,7 +16,7 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
     private static final String TABLE_API = "api/now/table";
     private static final String ATTACHMENT_API = "api/now/attachment/file";
 
-	private String instance;
+    private String instance;
     private String credentialId;
     private String producerId;
     private boolean useProxy;
@@ -50,32 +51,32 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
     }
 
     public boolean isUseProxy() {
-		return useProxy;
-	}
+        return useProxy;
+    }
 
     @DataBoundSetter
-	public void setUseProxy(boolean useProxy) {
-		this.useProxy = useProxy;
-	}
+    public void setUseProxy(boolean useProxy) {
+        this.useProxy = useProxy;
+    }
 
-	public String getHttpProxyHost() {
-		return httpProxyHost;
-	}
+    public String getHttpProxyHost() {
+        return httpProxyHost;
+    }
 
-	@DataBoundSetter
-	public void setHttpProxyHost(String httpProxyHost) {
-		this.httpProxyHost = httpProxyHost;
-	}
+    @DataBoundSetter
+    public void setHttpProxyHost(String httpProxyHost) {
+        this.httpProxyHost = httpProxyHost;
+    }
 
-	public int getHttpProxyPort() {
-		return httpProxyPort;
-	}
+    public int getHttpProxyPort() {
+        return httpProxyPort;
+    }
 
-	@DataBoundSetter
-	public void setHttpProxyPort(int httpProxyPort) {
-		this.httpProxyPort = httpProxyPort;
-	}
-	
+    @DataBoundSetter
+    public void setHttpProxyPort(int httpProxyPort) {
+        this.httpProxyPort = httpProxyPort;
+    }
+    
     public String getAttachmentUrl(ServiceNowItem serviceNowItem) {
         return getBaseUrl()+"/"+ATTACHMENT_API+"?file_name="+serviceNowItem.getFilename()+"&table_name="+serviceNowItem.getTable()+"&table_sys_id="+serviceNowItem.getSysId();
     }

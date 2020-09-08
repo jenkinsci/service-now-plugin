@@ -1,0 +1,23 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:entry title="${%Instance}" field="instance">
+        <f:textbox />
+    </f:entry>
+    <f:entry title="${%CredentialsId}" field="credentialsId">
+        <f:textbox />
+    </f:entry>
+    <f:entry title="${%ProducerId}" field="producerId">
+        <f:textbox />
+    </f:entry>
+    <f:advanced>
+        <f:entry title="${%UseProxy}" field="useProxy" description="${%UseProxyDescr}">
+            <f:checkbox />
+        </f:entry>
+        <f:entry title="${%HttpProxyHost}" field="httpProxyHost">
+            <f:textbox />
+        </f:entry>
+        <f:entry title="${%HttpProxyPort}" field="httpProxyPort">
+            <f:textbox />
+        </f:entry>
+    </f:advanced>
+</j:jelly>

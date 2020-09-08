@@ -41,7 +41,7 @@ import java.io.InputStream;
 import java.util.logging.Logger;
 
 public class ServiceNowExecution {
-	
+    
     private static final Logger LOGGER = Logger.getLogger(ServiceNowExecution.class.getName());
 
     private final Credentials credentials;
@@ -129,25 +129,28 @@ public class ServiceNowExecution {
     }
 
     private CloseableHttpClient auth(HttpRequestBase requestBase, HttpClientBuilder clientBuilder, HttpContext httpContext) {
-        if(credentials != null) {
-            return authenticate(clientBuilder, requestBase, httpContext);
-        }
         if (serviceNowConfiguration.isUseProxy()) {
-        	if (Strings.isNullOrEmpty(serviceNowConfiguration.getHttpProxyHost())) {
-        		LOGGER.info("Using proxy activated. Using system properties for proxy configuration.");
+            if (Strings.isNullOrEmpty(serviceNowConfiguration.getHttpProxyHost())) {
+                LOGGER.info("Using proxy activated. Using system properties for proxy configuration.");
 
-        		clientBuilder.useSystemProperties();
-        	} else {
-        		LOGGER.info("Using proxy activated. Using config proxy " + serviceNowConfiguration.getHttpProxyHost()
-        															     + ":" 
-        															     + serviceNowConfiguration.getHttpProxyPort());
+                clientBuilder.useSystemProperties();
+            } else {
+                LOGGER.info("Using proxy activated. Using config proxy " + serviceNowConfiguration.getHttpProxyHost()
+                                                                         + ":" 
+                                                                         + serviceNowConfiguration.getHttpProxyPort());
 
-        		HttpHost httpProxyHost = new HttpHost(serviceNowConfiguration.getHttpProxyHost(), 
-        										      serviceNowConfiguration.getHttpProxyPort());
-        		
-        		clientBuilder.setProxy(httpProxyHost);
-        	}
+                HttpHost httpProxyHost = new HttpHost(serviceNowConfiguration.getHttpProxyHost(), 
+                                                      serviceNowConfiguration.getHttpProxyPort(),
+                                                      "http");
+                
+                clientBuilder.setProxy(httpProxyHost);
+            }
         }
+        
+        if (credentials != null) {
+            authenticate(clientBuilder, requestBase, httpContext);
+        }
+        
         return clientBuilder.build();
     }
 
@@ -155,7 +158,7 @@ public class ServiceNowExecution {
         requestBase.setHeaders(new Header[]{getContentTypeHeader("application/json")});
     }
 
-    private CloseableHttpClient authenticate(HttpClientBuilder clientBuilder, HttpRequestBase requestBase, HttpContext httpContext) {
+    private void authenticate(HttpClientBuilder clientBuilder, HttpRequestBase requestBase, HttpContext httpContext) {
         CredentialsProvider provider = new BasicCredentialsProvider();
         provider.setCredentials(
                 new AuthScope(requestBase.getURI().getHost(), requestBase.getURI().getPort()),
@@ -165,8 +168,6 @@ public class ServiceNowExecution {
         AuthCache authCache = new BasicAuthCache();
         authCache.put(URIUtils.extractHost(requestBase.getURI()), new BasicScheme());
         httpContext.setAttribute(HttpClientContext.AUTH_CACHE, authCache);
-
-        return clientBuilder.build();
     }
 
     private StringEntity buildEntity(String body) {

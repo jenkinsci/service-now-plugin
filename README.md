@@ -47,6 +47,16 @@ Every step must provide these two arguments in order to connect to the ServiceNo
   * `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
 * `credentialsId` - Jenkins credentials for Username with Password credentials or Vault Role Credentials, if including `vaultConfiguration` below
 
+If using proxy then the serivceNowConfiguration must be extended with each call. The extended serviceNowConfiguration then looks like this:
+
+* `serviceNowConfiguration`
+  * `instance` - Instance of service-now to connect to (https://<instance>.service-now.com)
+  * `useProxy` - Set to true, if proxy connection is requested. If `httpProxyHost` and `httpProxyPort` it will try to pick up the system configurations for the proxy.
+  * `httpProxyHost` - The proxy host to be used for making the service now API call
+  * `httpProxyPort` - The proxy post
+  
+Following are all the commands samples, extended with proxy calls.
+    
 #### Optional Parameters
 
 `vaultConfiguration`
@@ -82,6 +92,16 @@ def sysId = createResponse.result.sys_id
 def changeNumber = createResponse.result.number
 ```
 
+#### Example with proxy
+Create a service-now change and capture the sys_id and change number
+```groovy
+def response = serviceNow_createChange serviceNowConfiguration: [instance: 'exampledev', producerId: 'ls98y3khifs8oih3kjshihksjd', useProxy: true, httpProxyHost: 'some.proxy.host', httpProxyPort: 8090], credentialsId: 'jenkins-vault', vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+def jsonSlurper = new JsonSlurper()
+def createResponse = jsonSlurper.parseText(response.content)
+def sysId = createResponse.result.sys_id
+def changeNumber = createResponse.result.number
+```
+
 ### `serviceNow_updateChangeItem`
 
 #### Required Parameters
@@ -107,6 +127,18 @@ def response = serviceNow_updateChangeItem serviceNowConfiguration: [instance: '
 
 ```
 
+#### Example with proxy
+Update a service-now change with a short description and description
+```groovy
+def messageJson = new JSONObject()
+messageJson.putAll([
+                short_description: 'My change',
+                description: 'My longer description of the change'
+        ])
+def response = serviceNow_updateChangeItem serviceNowConfiguration: [instance: 'exampledev', useProxy: true, httpProxyHost: 'some.proxy.host', httpProxyPort: 8090], credentialsId: 'jenkins-vault', serviceNowItem: [table: 'change_request', sysId: 'adg98y29thukwfd97ihu23', body: messageJson.toString()], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+
+```
+
 ### `serviceNow_getChangeState`
 
 #### Required Parameters
@@ -122,6 +154,13 @@ def response = serviceNow_updateChangeItem serviceNowConfiguration: [instance: '
 Get the current state of a service-now change
 ```groovy
 def response = serviceNow_UpdateChangeItem serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'adg98y29thukwfd97ihu23'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+echo response //NEW
+```
+
+#### Example with proxy
+Get the current state of a service-now change
+```groovy
+def response = serviceNow_UpdateChangeItem serviceNowConfiguration: [instance: 'exampledev', useProxy: true, httpProxyHost: 'some.proxy.host', httpProxyPort: 8090], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'adg98y29thukwfd97ihu23'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
 echo response //NEW
 ```
 
@@ -144,6 +183,15 @@ echo response //NEW
 Get ctask of a service-now change
 ```groovy
 def response = serviceNow_getCTask serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', ctask: 'UAT_TESTING'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+def ctaskResponse = new JsonSlurper().parseText(response.content)
+def ctaskSysId = createResponse.result[0].sys_id
+def ctaskNumber = createResponse.result[0].number
+```
+
+#### Example
+Get ctask of a service-now change
+```groovy
+def response = serviceNow_getCTask serviceNowConfiguration: [instance: 'exampledev', useProxy: true, httpProxyHost: 'some.proxy.host', httpProxyPort: 8090], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', ctask: 'UAT_TESTING'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
 def ctaskResponse = new JsonSlurper().parseText(response.content)
 def ctaskSysId = createResponse.result[0].sys_id
 def ctaskNumber = createResponse.result[0].number
@@ -189,7 +237,17 @@ serviceNow_updateTask serviceNowConfiguration: [instance: 'exampledev'],
   ]
 ```
 
+#### Example with proxy
+Update all planning tasks to in progress state
 
+```groovy
+serviceNow_updateTask serviceNowConfiguration: [instance: 'exampledev', useProxy: true, httpProxyHost: 'some.proxy.host', httpProxyPort: 8090],
+  credentialsId: 'servicenow',
+  serviceNowItem: [sysId: 'fd03ba34db4f9f40ec45b2bd2b96197d',
+    query: 'change_task_type=planning',
+    body: '{"state":"2"}'
+  ]
+```
 
 ### `serviceNow_attachFile`
 
@@ -211,6 +269,13 @@ def myFile = readFile file: 'my-test-file.txt'
 serviceNow_attachFile serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', body: myFile, filename: 'my-test-file.txt'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
 ```
 
+#### Example
+Attach file to item in service-now
+```groovy
+def myFile = readFile file: 'my-test-file.txt'
+serviceNow_attachFile serviceNowConfiguration: [instance: 'exampledev', useProxy: true, httpProxyHost: 'some.proxy.host', httpProxyPort: 8090], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', body: myFile, filename: 'my-test-file.txt'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+```
+
 ### `serviceNow_attachZip`
 
 Attach a zip file (from the current directory) to a service-now item
@@ -230,4 +295,11 @@ Attach zip to item in service-now
 ```groovy
 zip zipFile: 'my-zip-file.zip', glob: '*.txt'
 serviceNow_attachZip serviceNowConfiguration: [instance: 'exampledev'], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', filename: 'my-zip-file.zip'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
+```
+
+#### Example with proxy
+Attach zip to item in service-now
+```groovy
+zip zipFile: 'my-zip-file.zip', glob: '*.txt'
+serviceNow_attachZip serviceNowConfiguration: [instance: 'exampledev', useProxy: true, httpProxyHost: 'some.proxy.host', httpProxyPort: 8090], credentialsId: 'jenkins-vault', serviceNowItem: [sysId: 'agsdh0wehosid9723h30h', filename: 'my-zip-file.zip'], vaultConfiguration: [url: 'https://vault.example.com:8200', path: 'secret/for/service_now/']
 ```
