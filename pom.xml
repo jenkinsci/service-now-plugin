@@ -7,7 +7,7 @@
         <version>2.32</version>
     </parent>
     <artifactId>service-now</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.5-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.60.1</jenkins.version>
@@ -167,6 +167,14 @@
                         <goals>
                             <goal>compile</goal>
                         </goals>
+                        
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+                            </sourceDirs>
+                        </configuration>
+                        
                     </execution>
 
                     <execution>
@@ -253,6 +261,11 @@
             <id>pdkreid</id>
             <name>Peter Kreidermacher</name>
             <email>pdkreid@gmail.com</email>
+        </developer>
+        <developer>
+        	<id>mustafic</id>
+        	<name>Admir Mustafic</name>
+        	<email>mustafic@gmail.com</email>
         </developer>
     </developers>
 </project>
