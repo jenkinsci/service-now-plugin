@@ -12,7 +12,7 @@ information and configure the API requests.
 ## Jenkins-ServiceNow Change Workflow
 
 The central idea for this plugin is to allow the deployment 
-process through Jenkins to manageeverything about a service 
+process through Jenkins to manage everything about a service 
 now change. One of the first 
 pieces from ServiceNow this plugin uses is the idea of a 
 standard change producer. This allows teams to build change 
