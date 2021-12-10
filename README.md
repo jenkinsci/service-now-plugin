@@ -55,7 +55,7 @@ Every step must provide these two arguments in order to connect to the ServiceNo
 
 ### `serviceNow_createChange`
 
-#### Required Parameters
+#### Optional Parameters
 
 `serviceNowConfiguration`
 * `producerId` - Producer ID of the standard change to create
