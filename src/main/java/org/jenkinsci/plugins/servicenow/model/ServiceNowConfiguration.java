@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.servicenow.model;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
@@ -70,7 +71,11 @@ public class ServiceNowConfiguration extends AbstractDescribableImpl<ServiceNowC
     }
 
     public String getProducerRequestUrl() {
-        return getBaseUrl()+"/"+PRODUCER_URI+"/"+getProducerId()+"/submit_producer";
+        if (StringUtils.isBlank(getProducerId())) {
+            return getBaseUrl()+"/"+TABLE_API+"/change_request";
+        } else {
+            return getBaseUrl()+"/"+PRODUCER_URI+"/"+getProducerId()+"/submit_producer";
+        }
     }
 
     public String getBaseUrl() {
